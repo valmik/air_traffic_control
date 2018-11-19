@@ -69,9 +69,19 @@ classdef AirTrafficProblem
             end
             obj = obj.CollisionConstraints();
         end
+        
+        
         function obj = CollisionConstraints(obj)
             return
         end
+        
+        function obj = CollisionCost(obj)
+            return
+        end
+        
+        
+        
+        
         function [x_opt, u_opt, exitval_opt] = RunMPC(obj)
             options = sdpsettings('solver', 'fmincon','verbose',3, 'showprogress', 5);
             

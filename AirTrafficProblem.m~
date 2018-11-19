@@ -1,0 +1,68 @@
+classdef AirTrafficProblem
+    %AirTrafficProblem Contains all the info needed to solve an air traffic
+    %control problem, including the overall cost and constraints
+    
+    properties
+        aircraft_list; % list of aircraft
+        N;
+        nx; % array of nx for each aircraft
+        nu; % array of nu for each aircraft
+        x_yalmip;
+        u_yalmip;
+        cost;
+        constraints;
+    end
+    
+    methods
+        function obj = AirTrafficProblem(list, N)
+            obj.aircraft_list = list;
+            obj.N = N;
+            obj = obj.GetYalmip();
+            obj = obj.GetCost();
+        end
+        
+        function obj = GetYalmip(obj)
+            obj.nx = zeros(numel(obj.aircraft_list));
+            obj.nu = zeros(numel(obj.aircraft_list));
+            for i = 1:numel(obj.aircraft_list)
+                obj.nx(i) = obj.aircraft_list(i).nx;
+                obj.nu(i) = obj.aircraft_list(i).nu;
+            end
+            obj.x_yalmip = sdpvar(sum(sum(obj.nx)), obj.N+1);
+            obj.u_yalmip = sdpvar(sum(sum(obj.nu)), obj.N);
+        end
+        
+        function obj = GetCost(obj)
+            P_list = cell(size(obj.aircraft_list));
+            Q_list = cell(size(obj.aircraft_list));
+            R_list = cell(size(obj.aircraft_list));
+            for i = 1:numel(obj.aircraft_list)
+                P_list{i} = obj.aircraft_list(i).P;
+                Q_list{i} = obj.aircraft_list(i).Q;
+                R_list{i} = obj.aircraft_list(i).R;
+            end
+            P = blkdiag(P_list{:});
+            Q = blkdiag(Q_list{:});
+            R = blkdiag(R_list{:});
+            obj.cost = obj.x_yalmip(:,obj.N+1)'*P*obj.x_yalmip(:,obj.N+1);
+            for k = 1:obj.N
+                obj.cost = obj.cost + ...
+                    obj.x_yalmip(:,k)'*Q*obj.x_yalmip(:,k) + ...
+                    obj.u_yalmip(:,k)'*R*obj.u_yalmip(:,k);
+            end
+        end
+        function obj = GetConstraints(obj)
+            obj.constraints = obj.aircraft_list(i).yalmip_constraints(obj.x_yalmip(0:obj.nx(1:i))), :), ...
+                obj.u_yalmip(sum(sum(obj.nu(1:(i-1)):obj.nu(1:i))), :));
+            for i = 1:numel(obj.aircraft_list)
+                obj.constraints = [obj.constraints, ...
+                    obj.aircraft_list(i).yalmip_constraints(...
+                    obj.x_yalmip(sum(sum(obj.nx(1:(i-1)):sum(sum(obj.nx(1:i))))), :), ...
+                    obj.u_yalmip(sum(sum(obj.nu(1:(i-1)):obj.nu(1:i))), :))];
+            end
+        end
+        
+    end
+    
+end
+

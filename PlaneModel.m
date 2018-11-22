@@ -1,0 +1,34 @@
+classdef PlaneModel < Aircraft
+    % The model for this aircraft is basically a unicycle model
+    
+    
+    methods
+        function obj = PlaneModel(id, x0)
+           % Creates a plane model with default constraints and dynamics
+           % x0 should be a 6x1 state array (x,y,v,psi,m,fuel)
+           % the inputs are phi, T (bank angle, thrust)
+           
+           if (any(size(x0)-[6,1]))
+               x0 = zeros(6,1);
+           end
+           obj.id = id;
+           obj.state = x0;
+           obj.nx = 6;
+           obj.nu = 2;
+           obj.Q = diag([1,1,1,0,0-1]);
+           obj.R = eye(2);
+           obj.P = diag([1,1,1,0,0,-1]);
+           obj.state_upper_bounds = [10;10;10;100;100;100];
+           obj.state_lower_bounds = [-10;-10;-10;-100;0;0];
+           obj.input_upper_bounds = [10; 10];
+           obj.input_lower_bounds = [-10; -10];
+           
+           obj.nonlinear_constraints = @(x, y) 0;
+           obj.nonlinear_dynamics = @(x, y, t) 0;
+                                
+            obj.radius = 1;
+        end
+        
+    end
+    
+end

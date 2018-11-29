@@ -20,7 +20,14 @@ classdef DoubleIntegrator < Aircraft
            obj.state_lower_bounds = [-10;-10;-10;-10;0];
            obj.input_upper_bounds = [10; 10];
            obj.input_lower_bounds = [-10; -10];
-%            obj.linear_dynamics_a = [0, 0, 1, 0, 0; ... % x
+            obj.radius = 1;
+            obj.nonlinear_dynamics = @(x, u, t) ...
+                x + [x(3);
+                 x(4);
+                 u(1);
+                 u(2);
+                 - u(1).^2 - u(2).^2]*t;
+             %            obj.linear_dynamics_a = [0, 0, 1, 0, 0; ... % x
 %                                     0, 0, 0, 1, 0; ... % y
 %                                     0, 0, 0, 0, 0; ... % dx
 %                                     0, 0, 0, 0, 0; ... % dy
@@ -32,15 +39,6 @@ classdef DoubleIntegrator < Aircraft
 %                                     -1, -1]; % Doesn't work because fuel
 %                                     increases when it accelerates
 %                                     backwards
-                                
-            obj.radius = 1;
-            
-            obj.nonlinear_dynamics = @(x, u, t) ...
-                x + [x(3);
-                 x(4);
-                 u(1);
-                 u(2);
-                 - u(1).^2 - u(2).^2]*t;
         end
         
     end

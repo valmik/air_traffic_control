@@ -7,9 +7,7 @@ a = DoubleIntegrator('1', [2; 2; 0; 0; 10]);
 b = DoubleIntegrator('2', [-1; -1; 0; 0; 10]);
 
 aircraft_list = [a, b];
-
 N = 10;
-
 timesteps = sdpvar(1, N);
 
 for i = 1:numel(aircraft_list)
@@ -18,11 +16,8 @@ end
 
 constraints = [];
 for k = 1:N
-    constraints = [constraints, (0.01 <= timesteps(k) <= 0.5):'Timestep constraint']
+    constraints = [constraints, (0.01 <= timesteps(k) <= 0.5):'Timestep constraint'];
 end
-
-
-
 
 %% Define Cost
 

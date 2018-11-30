@@ -22,9 +22,9 @@ classdef DoubleIntegrator < Aircraft
            obj.radius = .1;
            obj.nonlinear_dynamics = @(x, u, t) ...
                 x + [x(3);
-                 x(4);
+                 
                  u(1);
-                 u(2);
+                 u(2);asdf
                  - u(1).^2 - u(2).^2]*t;
              %            obj.linear_dynamics_a = [0, 0, 1, 0, 0; ... % x
 %                                     0, 0, 0, 1, 0; ... % y

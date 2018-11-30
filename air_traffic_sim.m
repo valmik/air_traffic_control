@@ -3,10 +3,11 @@ clear all; clc; disp('started');
 % a = DoubleIntegrator('1', [2; 2; 0; 0; 10]); % state: (x,y,dx,dy,f)
 % b = DoubleIntegrator('2', [-1; -1; 0; 0; 10]);
 % (x,y,v,psi,Fuel)
-x0 = [-2E3;500;200;0;10^9];
+x0 = [-1E3;300;150;-pi/2;10^9];
+x0b = [-1E3;0;150;pi/2-.05;10^9];
 a = PlaneModel('1',x0);
-% b = PlaneModel('2',[-20*10^3,-20*10^3,200,pi/2,10^9]);
-aircraft_list = a;
+b = PlaneModel('2',x0b);
+aircraft_list = [a];
 N = 50; %sim horizon
 % timesteps = sdpvar(1, N); %length of each timestep
 timesteps = .05*ones(1,N);
@@ -35,7 +36,7 @@ if numel(aircraft_list) >= 2
     end
 end
 
-cost = basic_cost + 0.01*collision_cost;
+cost = basic_cost + collision_cost;
 
 % Constraints
 
@@ -86,19 +87,20 @@ toc
 
 % Plot
 
-figure(1);clf;
+figure(1);
 hold on
 legend_str = cell(size(aircraft_list));
 for i = 1:numel(aircraft_list)
     x_opt = double(aircraft_list(i).x_yalmip);
     plot(x_opt(1, :), x_opt(2, :), '--*')
+    hold on
     legend_str{i} = aircraft_list(i).id;
 end
-grid
 title('Position plot')
-xlim(3E3*[-1 1]);
-ylim(3E3*[-1 1]);
+xlim(1.2E3*[-1 1]);
+ylim(1.2E3*[-1 1]);
 legend(legend_str)
+grid
 
 % States
 figure(2); clf;

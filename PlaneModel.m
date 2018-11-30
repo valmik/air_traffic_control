@@ -22,7 +22,7 @@ classdef PlaneModel < Aircraft
            veloCost = 0; psiCost = 0; fuelCost = 0;
            obj.Q = diag([distCost,distCost,veloCost,psiCost,fuelCost]); %stage
            bankAngleCost = 1;
-           obj.bankLim = pi/4;
+           obj.bankLim = pi/3;
            thrustCost = 1;
            obj.thrustMax = 2*112.5E3; 
            obj.thrustMin = obj.thrustMax/200;
@@ -43,26 +43,11 @@ classdef PlaneModel < Aircraft
            obj.nonlinear_dynamics = @(x,u,t) x+[x(3)*cos(x(4));
                                                 x(3)*sin(x(4));
                                                 -Kd*(x(3).^2)/obj.m + u(2)/obj.m;
-                                                g*tan(u(1))/x(3);
-                                                -eta*x(5)]*t;
+                                                 g*tan(u(1))/x(3); 
+                                                -eta*u(2)]*t;
 %https://www.politesi.polimi.it/bitstream/10589/114191/1/Tesi.pdf%
 % pg 9
-                                                
-                                                  
-%            obj.nonlinear_dynamics = @(x, u, t) x + [0 0 cos(x(4))                                 -x(3)*sin(x(4)) 0; ...
-%                                                     0 0 sin(x(4))                                 x(3)*cos(x(4))  0; ...
-%                                                     0 0 -obj.Cd*obj.S*obj.rho/(obj.m)*x(3)        0               0; ...
-%                                                     0 0 obj.Cl*obj.S*obj.rho/(2*obj.m)*sin(u(1))  0               0; ...
-%                                                     0 0 0                                         0               0]*x.*t ...
-%                                                 + [0 0; 
-%                                                    0 0; 
-%                                                    0 1/obj.m; 
-%                                                    obj.Cl*obj.S*obj.rho*x(3)/2/obj.m*cos(u(1)) 0; 
-%                                                    0 1]*u.*t;
-                                
-           obj.radius = 1; %m, half wingspan of a320
-           
-          
+           obj.radius = 17.4; %m, half wingspan of a320
         end
         
     end

@@ -12,7 +12,7 @@ classdef DoubleIntegrator < Aircraft
            obj.state = x0;
            obj.nx = 5;
            obj.nu = 2;
-           obj.Q = diag([2,1,0,0,-0.01]);%
+           obj.Q = diag([2,1,0,0,0]);%
            obj.R = eye(2); %input
            obj.P = diag([5,5,1,1,0]); %final
            obj.state_upper_bounds = [10;10;10;10;100];
@@ -22,9 +22,9 @@ classdef DoubleIntegrator < Aircraft
            obj.radius = .1;
            obj.nonlinear_dynamics = @(x, u, t) ...
                 x + [x(3);
-                 
+                 x(4);
                  u(1);
-                 u(2);asdf
+                 u(2);
                  - u(1).^2 - u(2).^2]*t;
              %            obj.linear_dynamics_a = [0, 0, 1, 0, 0; ... % x
 %                                     0, 0, 0, 1, 0; ... % y

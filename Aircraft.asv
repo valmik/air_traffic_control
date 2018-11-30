@@ -112,13 +112,12 @@ classdef Aircraft < handle
                 end
             end
             
-%             %Linear Dynamics
+            Linear Dynamics
             if (~isempty(obj.linear_dynamics_a))
                 for k = 1:obj.N
                     cons = [cons, [obj.x_yalmip(:, k+1) == obj.x_yalmip(:, k) + ...
                         obj.linear_dynamics_a * obj.x_yalmip(:, k) * timesteps(k) + ...
-                        obj.linear_dynamics_b * obj.u_yalmip(:, k) * timesteps(k)...
-                        ]:[obj.id, ' linear dynamics']];
+                        obj.linear_dynamics_b * obj.u_yalmip(:, k) ..]:[obj.id, ' linear dynamics']];
                 end
             end
             

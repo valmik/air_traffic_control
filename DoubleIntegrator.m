@@ -5,7 +5,6 @@ classdef DoubleIntegrator < Aircraft
         function obj = DoubleIntegrator(id, x0)
            % Creates a double integrator with default constraints and dynamics
            % x0 should be a 5x1 state array (x,y,dx,dy,f)
-           
            if (any(size(x0)-[5,1]))
                x0 = zeros(5,1);
            end
@@ -20,8 +19,8 @@ classdef DoubleIntegrator < Aircraft
            obj.state_lower_bounds = [-10;-10;-10;-10;0];
            obj.input_upper_bounds = [10; 10];
            obj.input_lower_bounds = [-10; -10];
-            obj.radius = 1;
-            obj.nonlinear_dynamics = @(x, u, t) ...
+           obj.radius = 1;
+           obj.nonlinear_dynamics = @(x, u, t) ...
                 x + [x(3);
                  x(4);
                  u(1);

@@ -1,31 +1,22 @@
-clear all;
-close all;
-clc;
-
-%% Setup
-a = DoubleIntegrator('1', [2; 2; 0; 0; 10]);
+clear all; clc; disp('started');
+% Setup
+a = DoubleIntegrator('1', [2; 2; 0; 0; 10]); % state: (x,y,dx,dy,f)
 b = DoubleIntegrator('2', [-1; -1; 0; 0; 10]);
-
 aircraft_list = [a, b];
-N = 10;
-timesteps = sdpvar(1, N);
-
-for i = 1:numel(aircraft_list)
+N = 10; %sim horizon
+timesteps = sdpvar(1, N); %length of each timestep
+for i = 1:numel(aircraft_list) %setup aircraft variables
    aircraft_list(i) = aircraft_list(i).setup_yalmip(N, timesteps); 
 end
-
 constraints = [];
 for k = 1:N
     constraints = [constraints, (0.01 <= timesteps(k) <= 0.5):'Timestep constraint'];
 end
-
-%% Define Cost
-
+% Define Cost
 basic_cost = 0;
 for i = 1:numel(aircraft_list)
     basic_cost = basic_cost + aircraft_list(i).yalmip_cost;
 end
-
 collision_cost = 0;
 if numel(aircraft_list) >= 2
     for i = 1:numel(aircraft_list)
@@ -41,7 +32,7 @@ end
 
 cost = basic_cost + 0.01*collision_cost;
 
-%% Constraints
+% Constraints
 
 % individual constraints
 for i = 1:numel(aircraft_list)
@@ -64,15 +55,12 @@ if numel(aircraft_list) >= 2
     end
 end
 
-%% Final Constraint
+% Final Constraint
+% constraints = [constraints, ...
+%     (aircraft_list(i).x_yalmip(1, N+1) == 0):['Final Constraint'], ...
+%     (aircraft_list(i).x_yalmip(2, N+1) == 0):['Final Constraint']];
 
-constraints = [constraints, ...
-    (aircraft_list(i).x_yalmip(1, N+1) == 0):['Final Constraint'], ...
-    (aircraft_list(i).x_yalmip(2, N+1) == 0):['Final Constraint']];
-
-
-%% Solve
-
+% Solve
 options = sdpsettings('solver', 'IPOPT','verbose',3, 'showprogress', 5);
             
 options.ipopt.mu_strategy      = 'adaptive';
@@ -90,9 +78,9 @@ tic
     exitval_opt = optimize(constraints, cost, options);
 toc
 
-%% Plot
+% Plot
 
-figure()
+figure(1);clf;
 hold on
 legend_str = cell(size(aircraft_list));
 for i = 1:numel(aircraft_list)
@@ -100,13 +88,12 @@ for i = 1:numel(aircraft_list)
     plot(x_opt(1, :), x_opt(2, :), '--*')
     legend_str{i} = aircraft_list(i).id;
 end
+grid
 title('Position plot')
 legend(legend_str)
 
-
-%% Deeper plotting (only works when all the aircraft have the same state/input)
-
-figure()
+% States
+figure(2); clf;
 hold on
 legend_str = cell(size(aircraft_list));
 nx = aircraft_list(1).nx;
@@ -127,7 +114,7 @@ hold on
 title('State plot')
 legend(legend_str)
 
-figure()
+figure(3); clf; %inputs
 for i = 1:numel(aircraft_list)
     u_opt = double(aircraft_list(i).u_yalmip);
     for j = 1:nu
@@ -143,14 +130,14 @@ title('Input plot')
 legend(legend_str)
 
 
-%% Test collision constraints:
+% Test collision constraints:
 
 if numel(aircraft_list) >= 2
     for i = 1:numel(aircraft_list)
         for j = (i+1):numel(aircraft_list)
             for k = 1:N+1
-                vector_diff = double(aircraft_list(i).x_yalmip(:,k)) - double(aircraft_list(j).x_yalmip(:,k))
-                radius = max(aircraft_list(i).radius.^2, aircraft_list(j).radius.^2)
+                vector_diff = double(aircraft_list(i).x_yalmip(:,k)) - double(aircraft_list(j).x_yalmip(:,k));
+                radius = max(aircraft_list(i).radius.^2, aircraft_list(j).radius.^2);
                 if (vector_diff(1)^2 + vector_diff(2)^2) < radius
                     disp('FAIL')
                     break;
@@ -160,15 +147,13 @@ if numel(aircraft_list) >= 2
     end
 end
 
-%% Test collision cost
-
-
+% Test collision cost
 for i = 1:numel(aircraft_list)
     for j = (i+1):numel(aircraft_list)
         for k = 1:N+1
             vector_diff = double(aircraft_list(i).x_yalmip(:,k)) - double(aircraft_list(j).x_yalmip(:,k));
             radius = max(aircraft_list(i).radius^2, aircraft_list(j).radius^2);
-            log((vector_diff(1)^2 + vector_diff(2)^2)/radius)
+            log((vector_diff(1)^2 + vector_diff(2)^2)/radius);
         end
     end
 end

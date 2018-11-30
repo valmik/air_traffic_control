@@ -56,9 +56,10 @@ if numel(aircraft_list) >= 2
 end
 
 % Final Constraint
-% constraints = [constraints, ...
-%     (aircraft_list(i).x_yalmip(1, N+1) == 0):['Final Constraint'], ...
-%     (aircraft_list(i).x_yalmip(2, N+1) == 0):['Final Constraint']];
+i=1;
+constraints = [constraints, ...
+    (aircraft_list(i).x_yalmip(1, N+1) == 0):['Final Constraint'], ...
+    (aircraft_list(i).x_yalmip(2, N+1) == 0):['Final Constraint']];
 
 % Solve
 options = sdpsettings('solver', 'IPOPT','verbose',3, 'showprogress', 5);
@@ -139,7 +140,7 @@ if numel(aircraft_list) >= 2
                 vector_diff = double(aircraft_list(i).x_yalmip(:,k)) - double(aircraft_list(j).x_yalmip(:,k));
                 radius = max(aircraft_list(i).radius.^2, aircraft_list(j).radius.^2);
                 if (vector_diff(1)^2 + vector_diff(2)^2) < radius
-                    disp('FAIL')
+                    disp('FAIL collision constr')
                     break;
                 end
             end

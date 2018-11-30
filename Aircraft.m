@@ -35,7 +35,7 @@ classdef Aircraft < handle
         linear_dynamics_a; % linear dynamics matrix (state part)
         linear_dynamics_b; % linear dynamics matrix (input part)
         nonlinear_dynamics; % nonlinear dynamics (function of x, u)
- 
+  
         % Other parameters
         radius; % min safe radius
         
@@ -72,7 +72,6 @@ classdef Aircraft < handle
             % length of each timestep in the discretized dynamics function
             
             cons = [(obj.x_yalmip(:, 1) == obj.state):[obj.id, ' initial state']];
-
             % State bounds
             if (~isempty(obj.state_upper_bounds))
                 for k = 1:obj.N+1

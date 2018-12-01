@@ -12,38 +12,46 @@ classdef linearizedPlane < Aircraft
        bankLim;
     end
     methods
-        function obj = PlaneModel(id, x0, Ts)
+        function obj = linearizedPlane(id, x0, phi, V, Ts)
            % Creates a plane model with default constraints and dynamics
-           % x0 should be a 5x1 state array (x,y,v,psi,Fuel)
-           % the inputs are phi, T (bank angle, thrust)
            obj.nx = 4; obj.nu = 2;
            if all(size(x0) ~= [4 1])
                error('invalid state');
            end
            obj.state = x0;
            obj.id = id;
-           obj.sI = 1;
            
-           distCost = 5;
-           veloCost = 0; psiCost = 0; fuelCost = 0;
-%            obj.Q = diag([distCost,distCost,veloCost,psiCost,fuelCost]); %stage
-           bankAngleCost = 1;
+           distC = 5;
            obj.bankLim = pi/3;
-           thrustCost = 1;
            obj.thrustMax = 2*112.5E3; 
            obj.thrustMin = obj.thrustMax/200;
-%            obj.R = diag([bankAngleCost, thrustCost]); %input
-%            obj.P = zeros(obj.nx); %final
+
            xylim = 300E3;
            maxV = 900/3.6; minV = 200/3.6;
-           g = 9.8; 
-           eta = 10; %arbitrary
-           
+           g = 9.8; aL = g;
+           Kd = (obj.Cd*obj.rho*obj.S)/2;
+           obj.Q = diag([distC,distC,0,0]); %stage
+           obj.R = eye(2); %input
+           obj.P = zeros(obj.nx); %final
            obj.linear_dynamics_a = [eye(2) Ts*eye(2); 
-                                    zero(2) eye(2)];
-           obj.linear_dynamics_b = [(Ts.^2)*eye(2)/2; 
+                                    zeros(2) eye(2)];
+           obj.linear_dynamics_b = [(Ts.^3)*eye(2)/2; 
                                      Ts*eye(2)];
-           
+           obj.nonlinear_constraints = @(x, u) [x(3).^2 + x(4).^2 - maxV.^2;
+                                                (obj.m*(u(1)*cos(phi)+u(2)*sin(phi))+Kd*V) - obj.thrustMax;
+                                                obj.thrustMin - (obj.m*(u(1)*cos(phi)+u(2)*sin(phi))+Kd*V)];
+           obj.state_constraints_a = [0 0 -cos(phi) -sin(phi);
+                                      1 0   0         0;
+                                      0 1   0         0];
+           obj.state_constraints_b = [-minV;
+                                       xylim;
+                                       xylim];
+           obj.input_constraints_a = [cos(phi) sin(phi);
+                                      -cos(phi) -sin(phi);
+                                      -sin(phi)/g cos(phi)/g;
+                                      sin(phi)/g -cos(phi)/g];
+           obj.input_constraints_b = [aL; aL; tan(phi); tan(phi)];
+                                                
 %https://www.politesi.polimi.it/bitstream/10589/114191/1/Tesi.pdf%
 % pg 28ish
            obj.radius = 17.4; %m, half wingspan of a320

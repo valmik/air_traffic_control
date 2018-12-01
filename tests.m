@@ -1,3 +1,4 @@
+%% PlaneModel tests
 clear; clc
 x0 = [0;2*10^3;200;-pi/2;10^9];
 a = PlaneModel('1',x0);

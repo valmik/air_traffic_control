@@ -21,7 +21,7 @@ classdef linearizedPlane < Aircraft
            obj.state = x0;
            obj.id = id;
            
-           distC = 5;
+           distC = 500;
            obj.bankLim = pi/3;
            obj.thrustMax = 2*112.5E3; 
            obj.thrustMin = obj.thrustMax/200;
@@ -33,10 +33,10 @@ classdef linearizedPlane < Aircraft
            obj.Q = diag([distC,distC,0,0]); %stage
            obj.R = eye(2); %input
            obj.P = zeros(obj.nx); %final
-           obj.linear_dynamics_a = [eye(2) Ts*eye(2); 
-                                    zeros(2) eye(2)];
-           obj.linear_dynamics_b = [(Ts.^3)*eye(2)/2; 
-                                     Ts*eye(2)];
+           obj.linear_dynamics_a = [zeros(2) eye(2); 
+                                    zeros(2) zeros(2)];
+           obj.linear_dynamics_b = [zeros(2); 
+                                     eye(2)];
            obj.nonlinear_constraints = @(x, u) [x(3).^2 + x(4).^2 - maxV.^2;
                                                 (obj.m*(u(1)*cos(phi)+u(2)*sin(phi))+Kd*V) - obj.thrustMax;
                                                 obj.thrustMin - (obj.m*(u(1)*cos(phi)+u(2)*sin(phi))+Kd*V)];
@@ -50,7 +50,7 @@ classdef linearizedPlane < Aircraft
                                       -cos(phi) -sin(phi);
                                       -sin(phi)/g cos(phi)/g;
                                       sin(phi)/g -cos(phi)/g];
-           obj.input_constraints_b = [aL; aL; tan(phi); tan(phi)];
+           obj.input_constraints_b = [aL; aL; tan(obj.bankLim); tan(obj.bankLim)];
                                                 
 %https://www.politesi.polimi.it/bitstream/10589/114191/1/Tesi.pdf%
 % pg 28ish

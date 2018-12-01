@@ -8,19 +8,12 @@ classdef Aircraft < handle
         nx; % state size
         nu; % input size
         
-        state; % current state of the aircraft. The first two must by x, y position
+        state; % current state of the aircraft.
         
         % Cost
         Q; % state stage cost
         R; % input stage cost
         P; % state terminal cost
-        
-        % Aircraft Parameter
-        m = 64.5E3; % Mass of aircraft (kg) From Airbus a320
-        S = 122.6*2; % Surface of the Wings (m^2) From Airbus a320
-        Cd = 0.026; % Coefficient of Drag From A MODEL PREDICTIVE CONTROL APPROACH TO AIRCRAFT MOTION CONTROL
-        Cl = 0.24; % Coefficient of Lift From A MODEL PREDICTIVE CONTROL APPROACH TO AIRCRAFT MOTION CONTROL
-        rho = 1.225; % Air Density (kg/m^3) at ground level
         
         % Bounds
         state_upper_bounds; % upper bounds on state

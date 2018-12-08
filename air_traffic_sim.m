@@ -1,21 +1,34 @@
 clear all; clc; disp('started');
 % Setup
-% a = DoubleIntegrator('1', [2; 2; 0; 0; 10]); % state: (x,y,dx,dy,f)
-% b = DoubleIntegrator('2', [-1; -1; 0; 0; 10]);
-% (x,y,v,psi,Fuel)
-Ts = .1;
-x0 = [-1E3;300;150;-pi/2;10^9];
-x0b = [-1E3;0;150;pi/2-.05;10^9];
-x0c = [0;1000;150;pi/2-.05;10^9];
-x0d = [0;500;150;pi/2-.05;10^9];
-x0e = [0;-500;150;pi/2-.05;10^9];
-a = PlaneModel('1',x0,Ts);
-b = PlaneModel('2',x0b);
-c = PlaneModel('3',x0c);
-d = PlaneModel('4',x0d);
-e = PlaneModel('5',x0e);
-aircraft_list = [a];
-N = 50; %sim horizon
+tic
+% 
+Ts = .5;
+xy = [-1E3; 300];
+v = 200;
+psi = 0;
+x0 = [100;xy(2);v*cos(psi);v*sin(psi)];
+x0b = [xy(1);700;v*cos(psi);v*sin(psi)];
+x0c = [-800;-xy(2);v*cos(psi);v*sin(psi)];
+x0d = [-700;-xy(2);v*cos(psi);v*sin(psi)];
+x0e = [-600;-xy(2);v*cos(psi);v*sin(psi)];
+a = linearizedPlane('1',x0,psi,v,Ts);
+b = linearizedPlane('2',x0b,psi,v,Ts);
+c = linearizedPlane('3',x0c,psi,v,Ts);
+d = linearizedPlane('4',x0d,psi,v,Ts);
+e = linearizedPlane('5',x0e,psi,v,Ts);
+numPlanes = 20;
+aircraft_list = [a; b; c; d; e];
+for i = 1:numPlanes
+    x0e = [-rand*1000;rand*2000-1000;v*cos(psi);v*sin(psi)];
+    aircraft_list = [aircraft_list; linearizedPlane('5',x0e,psi,v,Ts)];
+end
+% x0a = [-1E3;300;200;0;10^9];
+% x0b = [-1E3;-300;200;0;10^9];
+% Ts = .1;
+% a = PlaneModel('1',x0a);
+% b = PlaneModel('1',x0b);
+
+N = 20; %sim horizon
 % timesteps = sdpvar(1, N); %length of each timestep
 timesteps = Ts*ones(1,N);
 for i = 1:numel(aircraft_list) %setup aircraft variables
@@ -30,10 +43,12 @@ basic_cost = 0;
 for i = 1:numel(aircraft_list)
     basic_cost = basic_cost + aircraft_list(i).yalmip_cost;
 end
+disp('collision');
 collision_cost = 0;
 if numel(aircraft_list) >= 2
     for i = 1:numel(aircraft_list)
         for j = (i+1):numel(aircraft_list)
+            fprintf("i: %d j:%d \n",[i j]);
             for k = 1:N+1
                 vector_diff = aircraft_list(i).x_yalmip(:,k) - aircraft_list(j).x_yalmip(:,k);
                 radius = max(aircraft_list(i).radius^2, aircraft_list(j).radius^2);
@@ -42,11 +57,9 @@ if numel(aircraft_list) >= 2
         end
     end
 end
-
 cost = basic_cost + .01*collision_cost;
 
 % Constraints
-
 % individual constraints
 for i = 1:numel(aircraft_list)
    constraints = [constraints, ...
@@ -88,12 +101,12 @@ options.ipopt.limited_memory_update_type = 'bfgs';  % {bfgs}, sr1
 options.ipopt.limited_memory_max_history = 10;  % {6}
 options.ipopt.max_cpu_time = 1e8;
 disp('opt');
+toc
 tic
     exitval_opt = optimize(constraints, cost, options)
 toc
 
 % Plot
-
 figure(1);clf
 hold on
 legend_str = cell(size(aircraft_list));
@@ -102,12 +115,11 @@ for i = 1:numel(aircraft_list)
     plot(x_opt(1, :), x_opt(2, :), '--*')
     hold on
     legend_str{i} = aircraft_list(i).id;
-    pause
 end
 title('Position plot')
 xlim(1.2E3*[-1 1]);
 ylim(1.2E3*[-1 1]);
-legend(legend_str)
+% legend(legend_str)
 grid
 
 % States

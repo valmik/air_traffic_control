@@ -68,19 +68,23 @@ classdef linearizedPlane < Aircraft
            %https://www.politesi.polimi.it/bitstream/10589/114191/1/Tesi.pdf%
 % pg 28ish
         end
-        function out = getState(obj,i)
+        function [state, input] = getState(obj,i)
            %convert from linearized states to physical states
            stateArr = value(obj.x_yalmip);
-           out = zeros(obj.nx,1);
-           out(1:2) = stateArr(1:2,i);
-%            out(3) = sqrt(obj.stateArr(4,i).^2 + obj.stateArr(5,i).^2);
-           out(4) = atan2(obj.stateArr(4,i),obj.stateArr(3,i));
+           state = zeros(obj.nx,1);
+           state(1:2) = stateArr(1:2,i); %xy
+           state(3) = sqrt(obj.stateArr(3,i).^2 + obj.stateArr(4,i).^2); %v
+           state(4) = atan2d(obj.stateArr(4,i),obj.stateArr(3,i)); %phi
+           input = zeros(obj.nu,1);
+           input(1) = obj.inputArr(1)*cos(obj.phi) + obj.inputArr(2)*sin(obj.phi);
+           input(2) = atand((1/9.81)*(-obj.inputArr(1)*sin(obj.phi)+obj.inputArr(2)*cos(obj.phi)));
         end
         function out = recordAndAdvanceState(obj)
             input = value(obj.u_yalmip(:,1));
             obj.inputArr(:,obj.simCounter) = input;
             nextState = value(obj.x_yalmip(:,2));
             obj.simCounter = obj.simCounter + 1;
+            obj.stateArr(:,obj.simCounter) = nextState;
             obj.state = nextState;
             obj.phi = atan2(obj.state(4),obj.state(3));
             obj.setConstraints(); %updates constraints based on new phi

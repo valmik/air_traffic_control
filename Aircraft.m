@@ -53,8 +53,11 @@ classdef Aircraft < handle
             obj.N = N;
             obj.x_yalmip = sdpvar(obj.nx, obj.N + 1);
             obj.u_yalmip = sdpvar(obj.nu, obj.N);
-            obj = obj.set_yalmip_constraints(timesteps);
+            
             obj = obj.set_yalmip_cost();
+            if ~isnan(timesteps)
+                obj = obj.set_yalmip_constraints(timesteps);
+            end
         end
         
         function obj = set_yalmip_constraints(obj, timesteps)
@@ -65,6 +68,7 @@ classdef Aircraft < handle
             % length of each timestep in the discretized dynamics function
             
             cons = [(obj.x_yalmip(:, 1) == obj.state):[obj.id, ' initial state']];
+            
             % State bounds
             if (~isempty(obj.state_upper_bounds))
                 for k = 1:obj.N+1

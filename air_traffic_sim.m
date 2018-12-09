@@ -1,7 +1,6 @@
 clear all; clc; disp('started');
 % Setup
 tic
-% 
 Ts = .5;
 xy = [-1E3; 300];
 v = 200;
@@ -11,24 +10,20 @@ x0b = [xy(1);700;v*cos(psi);v*sin(psi)];
 x0c = [-800;-xy(2);v*cos(psi);v*sin(psi)];
 x0d = [-700;-xy(2);v*cos(psi);v*sin(psi)];
 x0e = [-600;-xy(2);v*cos(psi);v*sin(psi)];
-a = linearizedPlane('1',x0,psi,v,Ts);
-b = linearizedPlane('2',x0b,psi,v,Ts);
-c = linearizedPlane('3',x0c,psi,v,Ts);
-d = linearizedPlane('4',x0d,psi,v,Ts);
-e = linearizedPlane('5',x0e,psi,v,Ts);
-numPlanes = 20;
-aircraft_list = [a; b; c; d; e];
+a = linearizedPlane('1',x0,psi,v);
+b = linearizedPlane('2',x0b,psi,v);
+c = linearizedPlane('3',x0c,psi,v);
+% d = linearizedPlane('4',x0d,psi,v,Ts);
+% e = linearizedPlane('5',x0e,psi,v,Ts);
+numPlanes = 2;
+aircraft_list = [a; b; c];%; d; e];
+x0Arr = zeros(2,numPlanes);
 for i = 1:numPlanes
     x0e = [-rand*1000;rand*2000-1000;v*cos(psi);v*sin(psi)];
+    x0Arr(:,i) = x0e(1:2)';
     aircraft_list = [aircraft_list; linearizedPlane('5',x0e,psi,v,Ts)];
 end
-% x0a = [-1E3;300;200;0;10^9];
-% x0b = [-1E3;-300;200;0;10^9];
-% Ts = .1;
-% a = PlaneModel('1',x0a);
-% b = PlaneModel('1',x0b);
-
-N = 20; %sim horizon
+N = 10; %sim horizon
 % timesteps = sdpvar(1, N); %length of each timestep
 timesteps = Ts*ones(1,N);
 for i = 1:numel(aircraft_list) %setup aircraft variables
@@ -45,25 +40,24 @@ for i = 1:numel(aircraft_list)
 end
 disp('collision');
 collision_cost = 0;
-if numel(aircraft_list) >= 2
-    for i = 1:numel(aircraft_list)
-        for j = (i+1):numel(aircraft_list)
-            fprintf("i: %d j:%d \n",[i j]);
-            for k = 1:N+1
-                vector_diff = aircraft_list(i).x_yalmip(:,k) - aircraft_list(j).x_yalmip(:,k);
-                radius = max(aircraft_list(i).radius^2, aircraft_list(j).radius^2);
-                collision_cost = collision_cost - (vector_diff(1)^2 + vector_diff(2)^2 - radius^2);
-            end
-        end
-    end
-end
+% if numel(aircraft_list) >= 2
+%     for i = 1:numel(aircraft_list)
+%         for j = (i+1):numel(aircraft_list)
+%             fprintf("i: %d j:%d \n",[i j]);
+%             for k = 1:N+1
+%                 vector_diff = aircraft_list(i).x_yalmip(:,k) - aircraft_list(j).x_yalmip(:,k);
+%                 radius = max(aircraft_list(i).radius^2, aircraft_list(j).radius^2);
+%                 collision_cost = collision_cost - (vector_diff(1)^2 + vector_diff(2)^2 - radius^2);
+%             end
+%         end
+%     end
+% end
 cost = basic_cost + .01*collision_cost;
 
 % Constraints
 % individual constraints
 for i = 1:numel(aircraft_list)
-   constraints = [constraints, ...
-       aircraft_list(i).yalmip_constraints];
+   constraints = [constraints, aircraft_list(i).yalmip_constraints];
 end
 
 % collision constraints
@@ -82,7 +76,9 @@ end
 % end
 
 % Final Constraint
-i=1;
+
+
+i=5;
 % constraints = [constraints, ...
 %     (aircraft_list(i).x_yalmip(1, N+1) == 0):['Final Constraint'], ...
 %     (aircraft_list(i).x_yalmip(2, N+1) == 0):['Final Constraint']];

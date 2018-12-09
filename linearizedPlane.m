@@ -1,5 +1,4 @@
 classdef linearizedPlane < Aircraft
-    % The model for this aircraft is basically a unicycle model
     properties
        % Aircraft Parameter
         m = 64.5E3; % Mass of aircraft (kg) From Airbus a320
@@ -12,7 +11,7 @@ classdef linearizedPlane < Aircraft
        bankLim;
     end
     methods
-        function obj = linearizedPlane(id, x0, phi, V, Ts)
+        function obj = linearizedPlane(id, x0, phi, V)
            % Creates a plane model with default constraints and dynamics
            obj.nx = 4; obj.nu = 2;
            if all(size(x0) ~= [4 1])

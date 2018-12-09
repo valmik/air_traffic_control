@@ -1,3 +1,21 @@
+%%
+params = struct();
+params.constr = [];
+params.obj = 0;
+params.aircraft_list = [];
+N = 5;
+x1 = [0; 0; 0; 0];
+p1 = linearizedPlane('1',x1,0,0,1);
+params = addPlane(p1,params,N);
+x2 = [1; 0; 0; 0];
+p2 = linearizedPlane('1',x2,0,0,1);
+params = addPlane(p2,params,N);
+%% distcost check
+clear
+pos1 = [0; 0];
+pos2 = [2; 2];
+distCost = sqrt(sum((pos2-pos1).^2))
+
 %% LinearizedPlane tests
 clear; clc
 N = 100; %steps

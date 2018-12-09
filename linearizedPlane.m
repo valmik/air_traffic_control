@@ -11,16 +11,21 @@ classdef linearizedPlane < Aircraft
        bankLim;
     end
     methods
-        function obj = linearizedPlane(id, x0, phi, V)
+        function obj = linearizedPlane(id, x0, phi, V, Ng)
            % Creates a plane model with default constraints and dynamics
            obj.nx = 4; obj.nu = 2;
            if all(size(x0) ~= [4 1])
                error('invalid state');
            end
-           obj.state = x0;
+           
+           obj.simCounter = 1;
+           obj.stateArr = zeros(obj.nx,Ng);
+           obj.stateArr(:,obj.simCounter) = x0;
+           obj.state = obj.stateArr(:,obj.simCounter);
+           
            obj.id = id;
            
-           distC = 500;
+           distC = 500; %cost for dist from origin
            obj.bankLim = pi/3;
            obj.thrustMax = 2*112.5E3; 
            obj.thrustMin = obj.thrustMax/200;
@@ -55,13 +60,20 @@ classdef linearizedPlane < Aircraft
 % pg 28ish
            obj.radius = 17.4; %m, half wingspan of a320
         end
-        function out = getState(i)
+        function out = getState(obj,i)
            %convert from linearized states to physical states
            stateArr = value(obj.x_yalmip);
            out = zeros(obj.nx,1);
            out(1:2) = stateArr(1:2,i);
            out(3) = sqrt(obj.stateArr(4,i).^2 + obj.stateArr(5,i).^2);
            out(4) = atan2(obj.stateArr(5,i),obj.stateArr(4,i));
-        end   
+        end
+        function out = recordAndAdvanceState(obj)
+            input = value(obj.u_yalmip(:,1));
+            obj.inputArr(:,obj.simCounter) = input;
+            nextState = obj.linear_dynamics_a*obj.state + obj.linear_dynamics_b*input;
+            obj.simCounter = obj.simCounter + 1;
+            obj.state = nextState;
+        end
     end
 end

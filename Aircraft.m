@@ -31,6 +31,9 @@ classdef Aircraft < handle
   
         % Other parameters
         radius; % min safe radius
+        stateArr %actual plane state
+        inputArr %actual inputs applied
+        simCounter %index for global simulation
         
         % Should be set up during yalmip setup
         N; % horizon

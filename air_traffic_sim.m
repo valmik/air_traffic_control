@@ -1,5 +1,7 @@
 clear all; clc; disp('started');
 % Setup
+% this is now broken due to changes in aircraft file
+% no initial condition constraint
 tic
 Ts = .5;
 xy = [-1E3; 300];

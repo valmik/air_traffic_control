@@ -31,8 +31,8 @@ classdef Aircraft < handle
   
         % Other parameters
         radius; % min safe radius
-        stateArr %actual plane state
-        inputArr %actual inputs applied
+        stateArr %global plane state
+        inputArr %global inputs applied
         simCounter %index for global simulation
         
         % Should be set up during yalmip setup
@@ -70,7 +70,8 @@ classdef Aircraft < handle
             % timesteps is either a sdpvar or double array of length N. It's the
             % length of each timestep in the discretized dynamics function
             
-            cons = [(obj.x_yalmip(:, 1) == obj.state):[obj.id, ' initial state']];
+            cons = [];
+%             cons = [(obj.x_yalmip(:, 1) == obj.state):[obj.id, ' initial state']];
             
             % State bounds
             if (~isempty(obj.state_upper_bounds))

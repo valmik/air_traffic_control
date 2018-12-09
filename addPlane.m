@@ -14,6 +14,6 @@ for i = 1:N
         x2 = params.aircraft_list(j).x_yalmip;
         pos2 = x2(1:2); %get xy position for other plane
         distCost = sum((pos2-pos1).^2); %distance squared
-        params.obj = params.obj - distCost;
+        params.obj = params.obj - 1000*distCost;
     end
 end

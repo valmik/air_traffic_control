@@ -8,7 +8,7 @@ for i = 1:numPlanes
     plot(pos(1,:),pos(2,:),'+-');
     hold on
 end
-limVal = 5E3;
+limVal = 10E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid

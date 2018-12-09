@@ -1,7 +1,7 @@
 clear; clc
 Ts = 1;
 N = 20; %MPC simulation horizon
-Ng = 10;%global horizon
+Ng = 15;%global horizon
 params = struct();
 params.constr = [];
 params.obj = 0;
@@ -11,8 +11,8 @@ params.Ng = Ng;
 psi1 = 0; xy = [-1E3; 300]; v = 200;
 psi2 = 0;
 psi3 = pi/3;
-x0a = [-6000; 3000;v*cos(psi1);v*sin(psi1)];
-x0b = [-4500; -3000;v*cos(psi2);v*sin(psi2)];
+x0a = [-4500; 3000;v*cos(psi1);v*sin(psi1)];
+x0b = [-6000; -3000;v*cos(psi2);v*sin(psi2)];
 x0c = [-3000; -1000;v*cos(psi3);v*sin(psi3)];
 x0d = [2000; -3000;v*cos(psi2);v*sin(psi2)];
 a = linearizedPlane('1',x0a,psi1,v,Ng);

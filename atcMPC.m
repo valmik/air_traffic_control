@@ -11,7 +11,6 @@ for i = 1:numel(params.aircraft_list)
 end
 
 constr = [params.constr constr2];
-fprintf("numConstr: %d \n",numel(constr));
 % Final Constraint
 % i=5;
 % constraints = [constraints, ...

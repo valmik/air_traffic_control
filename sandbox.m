@@ -1,6 +1,47 @@
 %%
 clear; clc
-phi = pi/6; 
+Ts = 1.5;
+dx = [.99 1.01];
+x = 1*dx;
+y = 1*dx;
+V = 200.*dx;
+psi = (pi/6)*dx;
+
+maxV = 900/3; minV = 200/3.6;
+HsA = [eye(4); -eye(4)];
+HsB = [max(x);  max(y); max(V); max(psi);
+      -min(x); -min(y); -min(V); -min(psi)];
+S = Polyhedron('H',[HsA HsB]); %state set
+postS = postNL(S,Ts,maxV,minV);
+
+figure(123);clf
+for i = 1:20
+    postS = postNL(postS,Ts,maxV,minV);
+    figure(123);
+    subplot(2,1,1);
+    a = postS.projection(1:2);
+    a.plot('color','b','alpha',.3);
+    hold on
+    xlabel('xpos');
+    ylabel('ypos');
+    xlim(10E3*[-1 1]);
+    ylim(10E3*[-1 1]);
+    subplot(2,1,2);
+    b = postS.projection(3:4);
+    b.plot('color','b','alpha',.3); hold on
+    xlabel('V');
+    ylabel('phi');
+%     clc
+%     pause
+%     check = a.distance([0;0]);
+%     if check.dist < 1
+%         disp('arrived')
+%     end
+end
+
+%%
+clear; clc
+phi = 0; 
 g = 9.81; aL = g; 
 bankLim = pi/3; 
 maxV = 900/3; minV = 200/3.6; xylim = 300E3;
@@ -20,7 +61,7 @@ Ts = 2;
 A = [zeros(2) eye(2); zeros(2) zeros(2)];
 B = ([zeros(2); eye(2)]);
 
-x = -500*[.99 1.01];
+x = -5000*[.99 1.01];
 % x = -5000*[.101 .99];
 y = 1*[.99 1.01];
 
@@ -52,9 +93,12 @@ for i = 1:20
     b.plot('color','b','alpha',.3); hold on
     xlabel('xvel');
     ylabel('yvel');
-    clc
+%     clc
 %     pause
-    disp('a');
+    check = a.distance([0;0]);
+    if check.dist < 1
+        disp('arrived')
+    end
 end
 
 

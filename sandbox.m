@@ -1,32 +1,61 @@
 %%
 clear; clc
-phi = 0; g = 9.81;aL = g; 
-bankLim = pi/3; minV = 200/3.6; xylim = 300E3;
+phi = pi/6; 
+g = 9.81; aL = g; 
+bankLim = pi/3; 
+maxV = 900/3; minV = 200/3.6; xylim = 300E3;
 UA = [cos(phi) sin(phi);
     -cos(phi) -sin(phi);
     -sin(phi)/g cos(phi)/g;
      sin(phi)/g -cos(phi)/g];
-UB = [aL; aL; tan(bankLim); tan(bankLim)];
+UB = [aL*2; .5*aL; tan(bankLim); tan(bankLim)];
 U = Polyhedron('H',[UA UB]);
 XA = [0 0 -cos(phi) -sin(phi);
+      0 0  cos(phi) sin(phi);
       1 0   0         0;
       0 1   0         0];
-XB = [-minV; xylim; xylim];
+XB = [-minV; maxV; xylim; xylim];
 X = Polyhedron('H',[XA XB]);
-
+Ts = 2;
 A = [zeros(2) eye(2); zeros(2) zeros(2)];
-B = [zeros(2); eye(2)];
-HsA = [eye(4); -eye(4)];
-HsB = [-99; 1; 11; 10;   101; 1; -9; 8];
-S = Polyhedron('H',[HsA HsB]);
-postS = post(A,B,S,U);
+B = ([zeros(2); eye(2)]);
 
-figure(123);clf
-b = S.projection(1:2);
-b.plot();
-figure(456);clf;
+x = -500*[.99 1.01];
+% x = -5000*[.101 .99];
+y = 1*[.99 1.01];
+
+Vx = 200.*[.99 1.01];
+% Vx = 200.*[.99 .101];
+Vy = 1*[.99 1.01];
+
+HsA = [eye(4); -eye(4)];
+HsB = [max(x);  max(y); max(Vx); max(Vy);
+      -min(x); -min(y); -min(Vx); -min(Vy)];
+S = Polyhedron('H',[HsA HsB]);
+postS = post(A,B,S,U,X,Ts,maxV,minV);
 a = postS.projection(1:2);
-a.plot();
+figure(123);clf
+a.plot(); hold on
+for i = 1:20
+    postS = post(A,B,postS,U,X,Ts,maxV,minV);
+    figure(123);
+    subplot(2,1,1);
+    a = postS.projection(1:2);
+    a.plot('color','b','alpha',.3);
+    hold on
+    xlabel('xpos');
+    ylabel('ypos');
+    xlim(10E3*[-1 1]);
+    ylim(10E3*[-1 1]);
+    subplot(2,1,2);
+    b = postS.projection(3:4);
+    b.plot('color','b','alpha',.3); hold on
+    xlabel('xvel');
+    ylabel('yvel');
+    clc
+%     pause
+    disp('a');
+end
 
 
 %%

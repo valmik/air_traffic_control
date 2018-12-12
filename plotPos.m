@@ -1,6 +1,6 @@
-function out = plotPos(params)
+function [] = plotPos(params)
 numPlanes = numel(params.aircraft_list);
-figure(1); clf;
+figure(1); clf
 for i = 1:numPlanes
     plane = params.aircraft_list(i);
     state = value(plane.x_yalmip);
@@ -12,3 +12,14 @@ limVal = 10E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid
+
+figure(2);
+hold on
+for i = 1:numPlanes
+    plane = params.aircraft_list(i);
+    state = plane.state;
+    pos = state(1:2,:);
+    plot(pos(1,:),pos(2,:),'+-');
+end
+
+pause(0.1)

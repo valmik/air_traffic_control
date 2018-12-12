@@ -32,3 +32,6 @@ value(params.obj)
 if exitval_opt.problem ~= 0
     disp('error');
 end
+out = exitval_opt.problem;
+
+end

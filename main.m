@@ -1,6 +1,12 @@
 clear; clc
 Ts = 1;
 N = 12; %MPC simulation horizon
+
+% Add yalmip
+setup_paths
+
+Ts = 2; % Time step size (in seconds)
+N = 20; %MPC simulation horizon
 Ng = 20;%global horizon
 params = struct();
 %params struct holds constraints and costs that are shared between runs,
@@ -23,22 +29,35 @@ x0c = [-3000; -1000;v*cos(psi3);v*sin(psi3)];
 x0d = [2000; -3000;v*cos(psi2);v*sin(psi2)];
 a = linearizedPlane('1',x0a,psi1,v,Ng);
 b = linearizedPlane('2',x0b,psi2,v,Ng);
-c = linearizedPlane('2',x0c,psi2,v,Ng);
-d = linearizedPlane('2',x0d,psi2,v,Ng);
+c = linearizedPlane('3',x0c,psi2,v,Ng);
+d = linearizedPlane('4',x0d,psi2,v,Ng);
 % populates relevant fields of params
 params = addPlane(a,params, N);
-params = addPlane(b,params, N);
+% params = addPlane(b,params, N);
 % params = addPlane(c,params, N);
 % params = addPlane(d,params, N);
 
+landing_index = 1; % choose which plane we want to land
+
 for j = 1:Ng %global simulation loop
 %     disp(j);
+    atcMPC(params,Ts,N) %mpc controller call
+    disp(j);
+    
+    Ts = set_ts(params, N, landing_index)
+%     Ts = 0.9544;
+
     atcMPC(params,Ts,N) %mpc controller call
     for ii = 1:numel(params.aircraft_list) 
         plane = params.aircraft_list(ii);
         plane.recordAndAdvanceState(); %applying control input to each plane
     end
     plotPos(params) %update on plot
+    
+    if dist_center(params, landing_index) < 500
+        break
+    end
+    pause
 end
 
 % plotStateAndInputs(params);

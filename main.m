@@ -1,7 +1,7 @@
 clear; clc
 Ts = 1;
-N = 20; %MPC simulation horizon
-Ng = 15;%global horizon
+N = 12; %MPC simulation horizon
+Ng = 20;%global horizon
 params = struct();
 %params struct holds constraints and costs that are shared between runs,
 % to avoid the overhead of regenerating these per run (collision costs
@@ -17,7 +17,7 @@ params.Ng = Ng;
 psi1 = 0; xy = [-1E3; 300]; v = 200;
 psi2 = 0;
 psi3 = pi/3;
-x0a = [-4500; 3000;v*cos(psi1);v*sin(psi1)];
+x0a = [-8000; 0;v*cos(psi1);v*sin(psi1)];
 x0b = [-6000; -3000;v*cos(psi2);v*sin(psi2)];
 x0c = [-3000; -1000;v*cos(psi3);v*sin(psi3)];
 x0d = [2000; -3000;v*cos(psi2);v*sin(psi2)];
@@ -32,7 +32,7 @@ params = addPlane(b,params, N);
 % params = addPlane(d,params, N);
 
 for j = 1:Ng %global simulation loop
-    disp(j);
+%     disp(j);
     atcMPC(params,Ts,N) %mpc controller call
     for ii = 1:numel(params.aircraft_list) 
         plane = params.aircraft_list(ii);
@@ -41,5 +41,5 @@ for j = 1:Ng %global simulation loop
     plotPos(params) %update on plot
 end
 
-plotStateAndInputs(params);
+% plotStateAndInputs(params);
 disp('done')

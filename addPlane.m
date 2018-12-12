@@ -9,11 +9,11 @@ params.obj = params.obj + plane.yalmip_cost;
 
 x1 = plane.x_yalmip;
 pos1 = x1(1:2);
-for i = 1:N
-    for j = 1:numOtherPlanes
-        x2 = params.aircraft_list(j).x_yalmip;
-        pos2 = x2(1:2); %get xy position for other plane
-        distCost = sum((pos2-pos1).^2); %distance squared
-        params.obj = params.obj - 100*distCost;
-    end
-end
+% for i = 1:N
+%     for j = 1:numOtherPlanes
+%         x2 = params.aircraft_list(j).x_yalmip;
+%         pos2 = x2(1:2); %get xy position for other plane
+%         distCost = sum((pos2-pos1).^2); %distance squared
+%         params.obj = params.obj - 100*distCost;
+%     end
+% end

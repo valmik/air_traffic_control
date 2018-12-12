@@ -5,6 +5,10 @@ constr2  = [];
 % dynamics constraints
 for i = 1:numel(params.aircraft_list)
    plane = params.aircraft_list(i);
+   if plane.state(4) < -.09*10^3
+       plane.state(4) = 0;
+   end
+   plane.state
    constr2 = [constr2 plane.x_yalmip(:,1) == plane.state];
    plane.set_yalmip_constraints(timesteps);
    constr2 = [constr2 plane.yalmip_constraints];

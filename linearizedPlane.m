@@ -28,7 +28,6 @@ classdef linearizedPlane < Aircraft
            obj.radius = 17.4; %m, half wingspan of a320
            
            obj.id = id;
-           
            distC = 50; %cost for dist from origin
            obj.Q = diag([distC,distC,0,0]); %stage
            obj.R = eye(2); %input

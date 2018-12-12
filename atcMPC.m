@@ -5,16 +5,13 @@ constr2  = [];
 % dynamics constraints
 for i = 1:numel(params.aircraft_list)
    plane = params.aircraft_list(i);
-   if plane.state(4) < -.09*10^3
-       plane.state(4) = 0;
-   end
-   plane.state
    constr2 = [constr2 plane.x_yalmip(:,1) == plane.state];
    plane.set_yalmip_constraints(timesteps);
    constr2 = [constr2 plane.yalmip_constraints];
 end
 
 constr = [params.constr constr2];
+% constr = constr2;
 % Final Constraint
 % i=5;
 % constraints = [constraints, ...
@@ -26,11 +23,15 @@ opts = setOptOptions();
 % toc
 % disp('start optimization');
 % tic
-    exitval_opt = optimize(constr, params.obj, opts)
+fprintf('opt start\n');
+exitval_opt = optimize(constr, params.obj, opts);
+fprintf('opt end\n');
 % toc
-value(params.obj)
-if exitval_opt.problem ~= 0
-    disp('error');
+% value(params.obj)
+if exitval_opt.problem == 1
+    fprintf("infeasible \n");
+elseif exitval_opt.problem ~= 0
+    fprintf('error\n');
 end
 out = exitval_opt.problem;
 

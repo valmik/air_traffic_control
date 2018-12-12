@@ -1,22 +1,31 @@
 %%
 clear; clc
-Ts = 1.5;
+Ts = .1;
 dx = [.99 1.01];
-x = 1*dx;
+x = -1*dx;
 y = 1*dx;
 V = 200.*dx;
-psi = (pi/6)*dx;
+psi = 0*dx;
 
 maxV = 900/3; minV = 200/3.6;
 HsA = [eye(4); -eye(4)];
 HsB = [max(x);  max(y); max(V); max(psi);
       -min(x); -min(y); -min(V); -min(psi)];
 S = Polyhedron('H',[HsA HsB]); %state set
+S.computeVRep();
 postS = postNL(S,Ts,maxV,minV);
 
 figure(123);clf
 for i = 1:20
-    postS = postNL(postS,Ts,maxV,minV);
+    tic
+    [postS, flag] = postNL(postS,Ts,maxV,minV);
+
+%     check = a.distance([0;0]);
+%     if check.dist < 1
+%         fprintf("arrived\n");
+%     end
+    time = toc;
+    fprintf("TS: %d verts: %d time: %0.2f arrive: %d \n",[i size(postS.V,1) time flag]);
     figure(123);
     subplot(2,1,1);
     a = postS.projection(1:2);
@@ -24,19 +33,14 @@ for i = 1:20
     hold on
     xlabel('xpos');
     ylabel('ypos');
-    xlim(10E3*[-1 1]);
-    ylim(10E3*[-1 1]);
+    xlim(.5E3*[-1 1]);
+    ylim(.5E3*[-1 1]);
     subplot(2,1,2);
     b = postS.projection(3:4);
     b.plot('color','b','alpha',.3); hold on
     xlabel('V');
     ylabel('phi');
-%     clc
-%     pause
-%     check = a.distance([0;0]);
-%     if check.dist < 1
-%         disp('arrived')
-%     end
+    pause
 end
 
 %%

@@ -1,5 +1,5 @@
 function options = setOptOptions()
-options = sdpsettings('solver', 'IPOPT','verbose',1, 'showprogress', 1, 'debug', 1);
+options = sdpsettings('solver', 'IPOPT','verbose', false, 'showprogress', false, 'debug', false);
             
 options.ipopt.mu_strategy      = 'adaptive';
 options.ipopt.max_iter         = 1e4;

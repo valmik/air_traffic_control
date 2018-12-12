@@ -1,8 +1,10 @@
 function out = plotStateAndInputs(params)
-numPlanes = numel(params.aircraft_list);
 figure(2); clf
-for i = 1:numPlanes
-    plane = params.aircraft_list(i);
+
+keySet = keys(params.aircraft_list);
+
+for key = keySet
+    plane = params.aircraft_list(key{1});
     stateArr = zeros(plane.nx,params.Ng);
     inputArr = zeros(plane.nu,params.Ng);
     for j = 1:params.Ng
@@ -14,18 +16,28 @@ for i = 1:numPlanes
     names = {'x','y','speed','heading angle'};
     for ii = 1:plane.nx
         subplot(numPlots,1,ii);
-        plot(stateArr(ii,:),'+-','DisplayName',num2str(i));
+        plot(stateArr(ii,:),'+-', 'color', params.color_list(key{1}));
         hold on
-        title(names{ii});
-        legend('-DynamicLegend');
     end
     inputnames = {'forward acceleration','bank angle'};
     for ii = 1:plane.nu
         subplot(numPlots,1,ii+plane.nx);
-        plot(inputArr(ii,:),'+-','DisplayName',num2str(i))
+        plot(inputArr(ii,:),'+-', 'color', params.color_list(key{1}))
         hold on
-        title(inputnames{ii});
-        legend('-DynamicLegend');
     end
     grid
+end
+
+for ii = 1:plane.nx
+    subplot(numPlots,1,ii);
+    hold on
+    title(names{ii});
+    legend(keySet);
+end
+
+for ii = 1:plane.nu
+    subplot(numPlots,1,ii+plane.nx);
+    hold on
+    title(inputnames{ii});
+    legend(keySet);
 end

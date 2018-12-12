@@ -1,9 +1,9 @@
-function [ Ts ] = set_ts( params, N, index )
+function [ Ts ] = set_ts( params, N, id )
 %UNTITLED2 Summary of this function goes here
 %   sets timestep based on the distance of the plane from the origin and
 %   its current speed
 
-plane = params.aircraft_list(index);
+plane = params.aircraft_list(id);
 state = plane.state;
 pos = state(1:2,1);
 dpos = state(3:4,1);

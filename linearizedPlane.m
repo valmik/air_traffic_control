@@ -9,17 +9,17 @@ classdef linearizedPlane < Aircraft
        thrustMax;
        thrustMin;   
        bankLim;
-       phi
+       psi
        V
     end
     methods
-        function obj = linearizedPlane(id, x0, phi, V, Ng)
+        function obj = linearizedPlane(id, x0, psi, V, Ng)
            % Creates a plane model with default constraints and dynamics
            obj.nx = 4; obj.nu = 2;
            if all(size(x0) ~= [4 1])
                error('invalid state');
            end
-           obj.phi = phi;
+           obj.psi = psi;
            obj.V = V;
            obj.simCounter = 1;
            obj.stateArr = zeros(obj.nx,Ng);
@@ -30,9 +30,6 @@ classdef linearizedPlane < Aircraft
            obj.id = id;
            
            distC = 50; %cost for dist from origin
-           
-
-           
            obj.Q = diag([distC,distC,0,0]); %stage
            obj.R = eye(2); %input
            obj.P = zeros(obj.nx); %final
@@ -44,7 +41,7 @@ classdef linearizedPlane < Aircraft
            maxV = 900/3.6; minV = 200/3.6;
            g = 9.8; aL = g;
            Kd = (obj.Cd*obj.rho*obj.S)/2;
-           obj.bankLim = pi/3;
+           obj.bankLim = pi/6;
            obj.thrustMax = 2*112.5E3; 
            obj.thrustMin = obj.thrustMax/200;
            obj.linear_dynamics_a = [zeros(2) eye(2); 
@@ -52,19 +49,22 @@ classdef linearizedPlane < Aircraft
            obj.linear_dynamics_b = [zeros(2); 
                                      eye(2)];
            obj.nonlinear_constraints = @(x, u) [x(3).^2 + x(4).^2 - maxV.^2;
-                                                (obj.m*(u(1)*cos(obj.phi)+u(2)*sin(obj.phi))+Kd*obj.V) - obj.thrustMax;
-                                                obj.thrustMin - (obj.m*(u(1)*cos(obj.phi)+u(2)*sin(obj.phi))+Kd*obj.V)];
-           obj.state_constraints_a = [0 0 -cos(obj.phi) -sin(obj.phi);
+                                                (obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V) - obj.thrustMax;
+                                                obj.thrustMin - (obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V)];
+           obj.state_constraints_a = [0 0 -cos(obj.psi) -sin(obj.psi);
                                       1 0   0         0;
                                       0 1   0         0];
            obj.state_constraints_b = [-minV;
                                        xylim;
                                        xylim];
-           obj.input_constraints_a = [cos(obj.phi) sin(obj.phi);
-                                      -cos(obj.phi) -sin(obj.phi);
-                                      -sin(obj.phi)/g cos(obj.phi)/g;
-                                      sin(obj.phi)/g -cos(obj.phi)/g];
+           obj.input_constraints_a = [cos(obj.psi) sin(obj.psi);
+                                      -cos(obj.psi) -sin(obj.psi);
+                                      -sin(obj.psi)/g cos(obj.psi)/g;
+                                      sin(obj.psi)/g -cos(obj.psi)/g];
            obj.input_constraints_b = [aL; aL; tan(obj.bankLim); tan(obj.bankLim)];
+%            obj.input_constraints_a = [cos(obj.psi) sin(obj.psi);
+%                                       -cos(obj.psi) -sin(obj.psi);];
+%            obj.input_constraints_b = [aL; aL];
            %https://www.politesi.polimi.it/bitstream/10589/114191/1/Tesi.pdf%
 % pg 28ish
         end
@@ -75,10 +75,10 @@ classdef linearizedPlane < Aircraft
            state = zeros(obj.nx,1);
            state(1:2) = stateArr(1:2,i); %xy
            state(3) = sqrt(obj.stateArr(3,i).^2 + obj.stateArr(4,i).^2); %v
-           state(4) = atan2d(obj.stateArr(4,i),obj.stateArr(3,i)); %phi
+           state(4) = atan2d(obj.stateArr(4,i),obj.stateArr(3,i)); %psi
            input = zeros(obj.nu,1);
-           input(1) = obj.inputArr(1)*cos(obj.phi) + obj.inputArr(2)*sin(obj.phi);
-           input(2) = atand((1/9.81)*(-obj.inputArr(1)*sin(obj.phi)+obj.inputArr(2)*cos(obj.phi)));
+           input(1) = obj.inputArr(1)*cos(obj.psi) + obj.inputArr(2)*sin(obj.psi);
+           input(2) = atand((1/9.81)*(-obj.inputArr(1)*sin(obj.psi)+obj.inputArr(2)*cos(obj.psi)));
         end
         function out = recordAndAdvanceState(obj)
             input = value(obj.u_yalmip(:,1)); %gets first optimal input
@@ -87,8 +87,10 @@ classdef linearizedPlane < Aircraft
             obj.simCounter = obj.simCounter + 1; %advance sim counter
             obj.stateArr(:,obj.simCounter) = nextState; %this should be set to currstate + optimal input
             obj.state = nextState; %sets current state of plane to updated state
-            obj.phi = atan2(obj.state(4),obj.state(3)); %sets current heading angle
-            obj.setConstraints(); %updates constraints based on new phi
+%             obj.state = [nextState(1); nextState(2); 200; -100];
+            obj.psi = atan2(obj.state(4),obj.state(3)); %sets current heading angle
+            obj.V = sqrt(obj.state(3).^2 + obj.state(4).^2);
+            obj.setConstraints(); %updates constraints based on new psi
         end
     end
 end

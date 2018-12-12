@@ -69,7 +69,8 @@ classdef linearizedPlane < Aircraft
 % pg 28ish
         end
         function [state, input] = getState(obj,i)
-           %convert from linearized states to physical states
+           %convert from linearized states to physical states. see link at
+           %dynamics constraint for reference.
            stateArr = value(obj.x_yalmip);
            state = zeros(obj.nx,1);
            state(1:2) = stateArr(1:2,i); %xy
@@ -80,13 +81,13 @@ classdef linearizedPlane < Aircraft
            input(2) = atand((1/9.81)*(-obj.inputArr(1)*sin(obj.phi)+obj.inputArr(2)*cos(obj.phi)));
         end
         function out = recordAndAdvanceState(obj)
-            input = value(obj.u_yalmip(:,1));
-            obj.inputArr(:,obj.simCounter) = input;
-            nextState = value(obj.x_yalmip(:,2));
-            obj.simCounter = obj.simCounter + 1;
-            obj.stateArr(:,obj.simCounter) = nextState;
-            obj.state = nextState;
-            obj.phi = atan2(obj.state(4),obj.state(3));
+            input = value(obj.u_yalmip(:,1)); %gets first optimal input
+            obj.inputArr(:,obj.simCounter) = input; %stores optimal input at global timestep index
+            nextState = value(obj.x_yalmip(:,2)); %gets optimal next state...this is wrong actually
+            obj.simCounter = obj.simCounter + 1; %advance sim counter
+            obj.stateArr(:,obj.simCounter) = nextState; %this should be set to currstate + optimal input
+            obj.state = nextState; %sets current state of plane to updated state
+            obj.phi = atan2(obj.state(4),obj.state(3)); %sets current heading angle
             obj.setConstraints(); %updates constraints based on new phi
         end
     end

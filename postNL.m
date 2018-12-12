@@ -1,9 +1,7 @@
 function [postS,flag] = postNL(S,Ts,maxV,minV)
-
-%A,B discrete dynamics
 %S: initial set polyhedron
-%U: input constraint polyhedron 
-%X: state constraint polyhedron
+% Ts: timestep
+% maxV, minV: min and max velocities
 
 % S.computeVRep();
 Sverts = S.V'; % limits of current state
@@ -26,7 +24,7 @@ for i = 1:size(Sverts,2)
                 ii = ii+1;
                 if ii > currSize
                     nextVerts = [nextVerts zeros(4,currSize)];
-                    currSize = 2*currSize;
+                    currSize = 2*currSize; 
                 end
             end
         end
@@ -36,11 +34,11 @@ end
 nextVerts = nextVerts(:,1:ii-1);
 
 postS = Polyhedron('V',nextVerts');
-postS = postS.minVRep();
+postS = postS.minVRep(); %get rid of redundant vertices for #performance
 verts = postS.V;
 maxVals = max(verts(:,1:2),[],1);
 minVals = min(verts(:,1:2),[],1);
-if all(maxVals > 0) && all(minVals < 0)
+if all(maxVals > 0) && all(minVals < 0) %checking if limits of xy contain 0 aka is (0,0) in the set
     flag = 1;
 else
     flag = 0;
@@ -48,23 +46,3 @@ end
 % disp(size(postS.V',2));
 end
     
-    
-    %nonlinear state [x y v psi]
-    %nonlinear input [accel(long) phi]
-    
-%     svert2nlstate = @(s) [s(1); s(2); sqrt(sum(s(3:4).^2)); atan2(s(4),s(3))];
-%     verts = [];
-%     for i = 1:size(base,2)
-%         for j = 1:size(Bverts,2)
-%             state = Sverts(:,i) + (A*Sverts(:,i)+B*Bverts(:,j)).*Ts;
-%             speed = sqrt(sum(state(3:4).^2));
-%             if speed < maxV && speed > minV
-%                 verts = [verts state];
-%             end
-%         end
-%     end
-%     postS = Polyhedron('V',verts');
-%     disp(size(verts,2));
-% %     out = X.intersect(postS);
-%     postS = postS.minVRep();
-% end

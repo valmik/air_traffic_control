@@ -1,6 +1,7 @@
-%%
+%% testing postNL
 clear; clc
-Ts = .1;
+Ts = .1; %timestep
+%initial set parameters 
 dx = [.99 1.01];
 x = -1*dx;
 y = 1*dx;
@@ -8,19 +9,20 @@ V = 200.*dx;
 psi = 0*dx;
 
 maxV = 900/3; minV = 200/3.6;
+%put initial set into a polyhedron
 HsA = [eye(4); -eye(4)];
 HsB = [max(x);  max(y); max(V); max(psi);
       -min(x); -min(y); -min(V); -min(psi)];
 S = Polyhedron('H',[HsA HsB]); %state set
-S.computeVRep();
-postS = postNL(S,Ts,maxV,minV);
+S.computeVRep(); %want vertices representation
 
+postS = postNL(S,Ts,maxV,minV);
 figure(123);clf
 for i = 1:20
     tic
     [postS, flag] = postNL(postS,Ts,maxV,minV);
 
-%     check = a.distance([0;0]);
+%     check = a.distance([0;0]); %uses built-in distance function: slow
 %     if check.dist < 1
 %         fprintf("arrived\n");
 %     end

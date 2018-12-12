@@ -6,5 +6,6 @@ if isempty(cur)
 end
 disp('adding third-party packages');
 addpath(genpath(fullfile(cur,'third_party','ipopt')));
+addpath(genpath(fullfile(cur,'third_party','Matlab-NestedMap')));
 
 disp('Initialized')

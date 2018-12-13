@@ -1,5 +1,7 @@
 function params = addPlane(plane,params,N )
 
+removePlane(params, plane.id); % First remove the plane in case it's already there
+
 otherPlanes = keys(params.aircraft_list);
 
 params.aircraft_list(plane.id) = plane.setup_yalmip(N,NaN);
@@ -14,12 +16,20 @@ params.costs(plane.id, plane.id) = plane.yalmip_cost;
 x1 = plane.x_yalmip;
 for key = otherPlanes
     x2 = params.aircraft_list(key{1}).x_yalmip;
-    distCost = 0;
-    for i = 1:N
-        distCost = distCost + sum((x2(1:2, i) - x1(1:2, i)).^2);
+    for i = 1:(N+1) % x is size N + 1;
+        distCost(i) = sum((x2(1:2, i) - x1(1:2, i)).^2);
     end
-    params.costs(plane.id, key{1}) = -50*distCost;
-    params.costs(key{1}, plane.id) = -50*distCost;
+    % We actually only need to save it in one location. As long as both are
+    % checked and both are deleted when the plane is removed, it should
+    % work fine
+    params.costs(plane.id, key{1}) = 0;
+%     params.costs(key{1}, plane.id) = -50*distCost;
+    cons = [];
+    for k = 1:(N+1)
+        cons = [cons, [distCost(k) >= 500]:[ ...
+            plane.id, ' ', key{1}, ' collision constraints']];
+    end
+    params.collision_constraints(plane.id, key{1}) = cons;
 end
 
 % 

@@ -18,13 +18,11 @@ end
 % add collision constraints
 coll_con = [];
 for map = values(params.collision_constraints)
-    for val = values(map{1})
-        coll_con = [coll_con, val{1}];
-    end
-end
+    for values(map{1})
+        coll_con
 
 
-constr = [coll_con constr2];
+constr = [params.constr constr2];
 % Final Constraint
 % i=5;
 % constraints = [constraints, ...

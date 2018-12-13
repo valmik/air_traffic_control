@@ -13,11 +13,11 @@ params = struct();
 % scale poorly with number of planes
 % constraints: none currently. dynamics constraints are not shared between
 % mpc runs since timesteps change. dynamics constraints are added in atcMPC
-params.constr = [];
 % costs: collision costs & distance from origin cost
 params.aircraft_list = containers.Map;
 params.color_list = containers.Map;
 params.costs = MapNested();
+params.collision_constraints = MapNested;
 params.Ng = Ng; 
 
 psi1 = 0; xy = [-1E3; 300]; v = 200;
@@ -37,8 +37,8 @@ params = addPlane(b,params, N);
 params = addPlane(c,params, N);
 params = addPlane(d,params, N);
 
-
 landing_id = '1'; % choose which plane we want to land
+
 
 for j = 1:Ng %global simulation loop
 
@@ -58,5 +58,5 @@ for j = 1:Ng %global simulation loop
     end
 end
 
-plotStateAndInputs(params);
+% plotStateAndInputs(params);
 disp('done')

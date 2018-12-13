@@ -2,7 +2,7 @@ function options = setOptOptions()
 options = sdpsettings('solver', 'IPOPT','verbose', false, 'showprogress', false, 'debug', false);
             
 options.ipopt.mu_strategy      = 'adaptive';
-options.ipopt.max_iter         = 1e4;
+options.ipopt.max_iter         = 1e6;
 options.ipopt.tol              = 1e-3;
 options.ipopt.linear_solver    = 'ma57';
 options.ipopt.ma57_automatic_scaling = 'yes';

@@ -32,12 +32,15 @@ b = linearizedPlane('2',x0b,psi2,v,Ng);
 c = linearizedPlane('3',x0c,psi2,v,Ng);
 d = linearizedPlane('4',x0d,psi2,v,Ng);
 % populates relevant fields of params
-% params = addPlane(a,params, N);
+params = addPlane(a,params, N);
 params = addPlane(b,params, N);
-% params = addPlane(c,params, N);
-% params = addPlane(d,params, N);
+params = addPlane(c,params, N);
+params = addPlane(d,params, N);
 
-landing_id = '2'; % choose which plane we want to land
+order = {'3', '2', '1', '4'};
+
+landing_id = order{1}; % choose which plane we want to land
+order = order(2:end);
 
 for j = 1:Ng %global simulation loop
 
@@ -52,13 +55,17 @@ for j = 1:Ng %global simulation loop
     end
     plotPos(params); %update on plot
     
-    if (dist_center(params, landing_id) < 500)
-        removePlane(params, landing_id)
-        keys = keys(params.aircraft_list);
-        if numel(keys) == 0
+    if (dist_center(params, landing_id) < 2500)
+        removePlane(params, landing_id);
+        if size(params.aircraft_list, 1) == 0
             break
         else
-            landing_id = keys{1};
+%             keys = keys(params.aircraft_list);
+%             landing_id = keys{1};
+            landing_id = order{1};
+            if numel(order) > 1
+                order = order(2:end);
+            end
         end
     end
 end

@@ -6,6 +6,9 @@ constr2  = [];
 % Construct Constraints
 for planecell = values(params.aircraft_list)
    plane = planecell{1};
+   if plane.state(4) < -.09*10^3
+       plane.state(4) = 0;
+   end
 %    plane.state
    constr2 = [constr2 (plane.x_yalmip(:,1) == plane.state):[plane.id, ' initial state']];
    plane.set_yalmip_constraints(timesteps);
@@ -15,12 +18,17 @@ end
 % add collision constraints
 coll_con = [];
 for map = values(params.collision_constraints)
-    for val = values(map{1})
-        coll_con = [coll_con, val{1}];
-    end
-end
+    for values(map{1})
+        coll_con
 
-constr = [coll_con constr2];
+
+constr = [params.constr constr2];
+% Final Constraint
+% i=5;
+% constraints = [constraints, ...
+%     (aircraft_list(i).x_yalmip(1, N+1) == 0):['Final Constraint'], ...
+%     (aircraft_list(i).x_yalmip(2, N+1) == 0):['Final Constraint']];
+
 
 % Construct Cost
 cost = 0;
@@ -35,16 +43,10 @@ opts = setOptOptions();
 % toc
 % disp('start optimization');
 % tic
-fprintf('opt start\n');
-exitval_opt = optimize(constr, params.costs, opts);
-fprintf('opt end\n');
+    exitval_opt = optimize(constr, cost, opts);
 % toc
-% value(params.obj)
-if exitval_opt.problem == 1
-    fprintf("infeasible \n");
-elseif exitval_opt.problem ~= 0
-    fprintf('error\n');
-% toc
+if exitval_opt.problem ~= 0
+    disp('error');
 end
 out = exitval_opt.problem;
 

@@ -10,7 +10,7 @@ for key = keySet
     plot(pos(1,:),pos(2,:),'+-', 'color', params.color_list(key{1}));
     hold on
 end
-limVal = 10E3;
+limVal = 100E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid
@@ -24,7 +24,7 @@ for key = keySet
     pos = state(1:2,:);
     plot(pos(1,:),pos(2,:),'+-', 'color', params.color_list(key{1}));
 end
-limVal = 10E3;
+limVal = 100E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid

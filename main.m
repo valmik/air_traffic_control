@@ -5,7 +5,7 @@ setup_paths
 
 Ts = .5; % Time step size (in seconds)
 N = 10; %MPC simulation horizon
-Ng = 100;%global horizon
+Ng = 1000;%global horizon
 
 params = struct();
 %params struct holds constraints and costs that are shared between runs,
@@ -13,11 +13,11 @@ params = struct();
 % scale poorly with number of planes
 % constraints: none currently. dynamics constraints are not shared between
 % mpc runs since timesteps change. dynamics constraints are added in atcMPC
-params.constr = [];
 % costs: collision costs & distance from origin cost
 params.aircraft_list = containers.Map;
 params.color_list = containers.Map;
 params.costs = MapNested();
+params.collision_constraints = MapNested;
 params.Ng = Ng; 
 
 psi1 = 0; xy = [-1E3; 300]; v = 200;
@@ -32,12 +32,12 @@ b = linearizedPlane('2',x0b,psi2,v,Ng);
 c = linearizedPlane('3',x0c,psi2,v,Ng);
 d = linearizedPlane('4',x0d,psi2,v,Ng);
 % populates relevant fields of params
-params = addPlane(a,params, N);
+% params = addPlane(a,params, N);
 params = addPlane(b,params, N);
-params = addPlane(c,params, N);
-params = addPlane(d,params, N);
+% params = addPlane(c,params, N);
+% params = addPlane(d,params, N);
 
-landing_id = '1'; % choose which plane we want to land
+landing_id = '2'; % choose which plane we want to land
 
 for j = 1:Ng %global simulation loop
     fprintf("Global timestep: %d\n",j);
@@ -49,9 +49,15 @@ for j = 1:Ng %global simulation loop
     plotPos(params); %update on plot
     
     if (dist_center(params, landing_id) < 500)
-        break
+        removePlane(params, landing_id)
+        keys = keys(params.aircraft_list);
+        if numel(keys) == 0
+            break
+        else
+            landing_id = keys{1};
+        end
     end
 end
 
-plotStateAndInputs(params);
+% plotStateAndInputs(params);
 disp('done')

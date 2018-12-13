@@ -81,6 +81,7 @@ for j = 1:Ng %global simulation loop
             end
         end
     end
+    saveas(figure(1), strcat(num2str(j), '.jpg'));
 end
 
 % plotStateAndInputs(params);

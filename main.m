@@ -32,19 +32,19 @@ b = linearizedPlane('2',x0b,psi2,v,Ng);
 c = linearizedPlane('3',x0c,psi2,v,Ng);
 d = linearizedPlane('4',x0d,psi2,v,Ng);
 % populates relevant fields of params
-% params = addPlane(a,params, N);
-% params = addPlane(b,params, N);
-% params = addPlane(c,params, N);
-params = addPlane(d,params, N);
+params = addPlane(a,params, N);
+params = addPlane(b,params, N);
+params = addPlane(c,params, N);
+% params = addPlane(d,params, N);
 
-params.costs('4', '4') = d.constant_radius_cost(5000);
+% params.costs('4', '4') = d.constant_radius_cost(5000);
 
 order = {};
-landing_id = '4';
-% order = {'3', '2', '1', '4'};
+% landing_id = '4';
+order = {'3', '2', '1'}; %, '4'};
 % 
-% landing_id = order{1}; % choose which plane we want to land
-% order = order(2:end);
+landing_id = order{1}; % choose which plane we want to land
+order = order(2:end);
 
 for j = 1:Ng %global simulation loop
 

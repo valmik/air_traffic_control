@@ -3,8 +3,8 @@ classdef linearizedPlane < Aircraft
        % Aircraft Parameter
         m = 64.5E3; % Mass of aircraft (kg) From Airbus a320
         S = 122.6*2; % Surface of the Wings (m^2) From Airbus a320
-        Cd = 0.026; % Coefficient of Drag From A MODEL PREDICTIVE CONTROL APPROACH TO AIRCRAFT MOTION CONTROL
-        Cl = 0.24; % Coefficient of Lift From A MODEL PREDICTIVE CONTROL APPROACH TO AIRCRAFT MOTION CONTROL
+        Cd = 0.053; % Coefficient of Drag From Aircraft Performance Parameter Estimation using Global ADS-B and Open Data
+        Cl = 0.466; % Coefficient of Lift From Aircraft Performance Parameter Estimation using Global ADS-B and Open Data
         rho = 1.225; % Air Density (kg/m^3) at ground level
        thrustMax;
        thrustMin;   

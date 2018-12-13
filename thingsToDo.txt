@@ -1,0 +1,23 @@
+Cosmetic problems:
+Animate a circle for the airport, so that we can see when planes touch it
+Small plane pictures that can move
+
+BIG Problem:
+If a plane isn't facing close enough such that in one prediction horizon it
+can point toward the origin, it will end up veering off into space because
+it doesn't understand that it needs to turn around / can't simulate it properly
+
+Ideas:
+- make the plane fly at a constant radius large enough that it can recover from it
+
+Other Problem:
+Lots of simulation failures start to crop up over time
+
+Ideas:
+- potentially something to do with initial conditions. One thing we might want to 
+do is use the previous predicted inputs to generate a path at the new start state
+and using the new timestep. Or possibly by interpolating over the previous optimized
+trajectory from the second state on using the new timestep. This could then be the 
+seed to the optimization
+- There's potentially something wrong in the linearization of the plane model which
+causes errors to crop up as heading angle changes

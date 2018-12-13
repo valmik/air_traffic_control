@@ -6,7 +6,7 @@ setup_paths
 
 Ts = 2; % Time step size (in seconds)
 N = 10; %MPC simulation horizon
-Ng = 20;%global horizon
+Ng = 1000;%global horizon
 params = struct();
 %params struct holds constraints and costs that are shared between runs,
 % to avoid the overhead of regenerating these per run (collision costs
@@ -32,13 +32,12 @@ b = linearizedPlane('2',x0b,psi2,v,Ng);
 c = linearizedPlane('3',x0c,psi2,v,Ng);
 d = linearizedPlane('4',x0d,psi2,v,Ng);
 % populates relevant fields of params
-params = addPlane(a,params, N);
+% params = addPlane(a,params, N);
 params = addPlane(b,params, N);
-params = addPlane(c,params, N);
-params = addPlane(d,params, N);
+% params = addPlane(c,params, N);
+% params = addPlane(d,params, N);
 
-landing_id = '1'; % choose which plane we want to land
-
+landing_id = '2'; % choose which plane we want to land
 
 for j = 1:Ng %global simulation loop
 
@@ -54,7 +53,13 @@ for j = 1:Ng %global simulation loop
     plotPos(params); %update on plot
     
     if (dist_center(params, landing_id) < 500)
-        break
+        removePlane(params, landing_id)
+        keys = keys(params.aircraft_list);
+        if numel(keys) == 0
+            break
+        else
+            landing_id = keys{1};
+        end
     end
 end
 

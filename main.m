@@ -44,18 +44,22 @@ params = addPlane(b,params, N);
 params = addPlane(c,params, N);
 params = addPlane(e,params, N);
 params = addPlane(f,params, N);
-% params = addPlane(d,params, N);
+params = addPlane(d,params, N);
 
 % params.costs('4', '4') = d.constant_radius_cost(5000);
 
 order = {};
 % landing_id = '4';
 order = { '3', '2', '1','5', '6'};%, '4'};
+% order = {'1','2'};
 % 
 landing_id = order{1}; % choose which plane we want to land
 order = order(2:end);
-savePlot = 0;
-
+savePlot = 1;
+dir = strcat(string(date)," ", string(hour(datetime)),".",string(minute(datetime)));
+if savePlot
+    mkdir(strcat('plots/',dir));
+end
 for j = 1:Ng %global simulation loop
     fprintf("Global timestep: %d\n",j);
     Ts = max(set_ts(params, N, landing_id), 0.5);
@@ -80,7 +84,7 @@ for j = 1:Ng %global simulation loop
         end
     end
     if savePlot
-        saveas(figure(1), strcat(num2str(j), '.jpg'));
+        saveas(figure(10), strcat('plots/',dir,'/',num2str(j), '.jpg'));
     end
 end
 

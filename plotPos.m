@@ -10,13 +10,13 @@ for key = keySet
     plot(pos(1,:),pos(2,:),'+-', 'color', params.color_list(key{1}));
     hold on
 end
-limVal = 100E3;
+limVal = 10E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid
 legend(keySet)
 
-figure(10);
+figure(10); clf
 hold on
 for key = keySet
     plane = params.aircraft_list(key{1});

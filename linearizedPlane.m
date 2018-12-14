@@ -30,7 +30,7 @@ classdef linearizedPlane < Aircraft
            obj.id = id;
            distC = 50; %cost for dist from origin
            obj.Q = diag([distC,distC,0,0]); %stage
-           obj.R = eye(2); %input
+           obj.R = .2*eye(2); %input
            obj.P = zeros(obj.nx); %final
            
            obj.setConstraints();
@@ -40,7 +40,7 @@ classdef linearizedPlane < Aircraft
            maxV = 900/3.6; minV = 200/3.6;
            g = 9.8; aL = g;
            Kd = (obj.Cd*obj.rho*obj.S)/2;
-           obj.bankLim = pi/6;
+           obj.bankLim = pi/2.1;
            obj.thrustMax = 2*112.5E3; 
            obj.thrustMin = obj.thrustMax/200;
            obj.linear_dynamics_a = [zeros(2) eye(2); 
@@ -50,7 +50,7 @@ classdef linearizedPlane < Aircraft
            obj.nonlinear_constraints = @(x, u) [x(3).^2 + x(4).^2 - maxV.^2;
                                                 (obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V) - obj.thrustMax;
                                                 obj.thrustMin - (obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V)];
-           obj.state_constraints_a = [0 0 -cos(obj.psi) -sin(obj.psi);
+           obj.state_constraints_a = [0 0 -cos(obj.psi) -sin(obj.psi); %check the rotation matrices here
                                       1 0   0         0;
                                       0 1   0         0];
            obj.state_constraints_b = [-minV;

@@ -36,7 +36,7 @@ opts = setOptOptions();
 % disp('start optimization');
 % tic
 fprintf('opt start\n');
-exitval_opt = optimize(constr, params.costs, opts);
+exitval_opt = optimize(constr, cost, opts);
 fprintf('opt end\n');
 % toc
 % value(params.obj)

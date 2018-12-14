@@ -48,7 +48,7 @@ for j = 1:Ng %global simulation loop
     end
     plotPos(params); %update on plot
     
-    if (dist_center(params, landing_id) < 500)
+    if (dist_center(params, landing_id) < 1000)
         removePlane(params, landing_id)
         keys = keys(params.aircraft_list);
         if numel(keys) == 0

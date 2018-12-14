@@ -1,8 +1,27 @@
+%%
+figure(123); clf
+plane_pic = imread('plane.jpg'); %Import Plane Image
+plane_pic = padarray(plane_pic,[50 50],1000,'both');
+imshow(plane_pic)
+
+theta = 60;
+pic = imrotate(plane_pic, theta,'crop')
+tl = round(325/4,0);
+% pic = imcrop(pic,[0 0 5000 5000])
+% pic = imclearborder(pic);
+% imshow(pic)
+border = 50;
+pic(1:border,:,:) = 1000;
+pic(:,end-border:end,:) = 1000;
+pic(:,1:border,:) = 1000;
+pic(end-border:end,:) = 1000;
+imshow(pic)
+
 %% test linearizedPlane
 clear
-v = 300; psi1 = 0; Ng = 100;
+v = 300; psi1 = 0; Ng = 100;xylim = 4*10^4;
 x0a = [-8000; 0;v*cos(psi1);v*sin(psi1)];
-a = linearizedPlane('1',x0a,psi1,v,Ng);
+a = linearizedPlane('1',x0a,psi1,v,xylim,Ng);
 [X,U] = a.constrPoly();
 figure(1); clf
 subplot(2,1,1);

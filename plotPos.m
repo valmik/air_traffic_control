@@ -12,7 +12,7 @@ for key = keySet
         'DisplayName', key{1});
     hold on
 end
-limVal = 10E3;
+limVal = params.xylim;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid
@@ -31,7 +31,7 @@ for key = keySet
         'color', params.color_list(key{1}), ...
         'DisplayName', key{1});
 end
-limVal = 10E3;
+limVal = params.xylim;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid

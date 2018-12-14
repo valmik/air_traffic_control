@@ -3,7 +3,7 @@ clear; clc
 % Add yalmip
 setup_paths
 
-Ts = .3; % Time step size (in seconds)
+Ts = .4; % Time step size (in seconds)
 N = 10; %MPC simulation horizon
 Ng = 1000;%global horizon
 
@@ -19,56 +19,59 @@ params.color_list = containers.Map;
 params.costs = MapNested();
 params.collision_constraints = MapNested;
 params.Ng = Ng; 
-
-psi1 = -pi/2; xy = [-1E3; 300]; v = 200;
-psi2 = pi/2;
+xylim = 1*10^4;
+params.xylim = xylim;
+psi1 = pi/4; xy = [-1E4; 3000]; v = 200;
+psi2 = pi/4;
 psi3 = pi/3;
 psi4 = pi/2;
 psi5 = -pi/2;
-x0a = [-8000; 3000;v*cos(psi1);v*sin(psi1)];
-x0b = [-8000; -3000;v*cos(psi2);v*sin(psi2)];
-x0c = [-3000; -1000;v*cos(psi3);v*sin(psi3)];
+x0a = [-8000; -5000; v*cos(psi1);v*sin(psi1)];
+x0b = [-8000; -3000; v*cos(psi2);v*sin(psi2)];
+x0c = [3000; -1000;v*cos(psi3);v*sin(psi3)];
 x0d = [2000; -3000;v*cos(psi2);v*sin(psi2)];
 x0e = [-3000; -8000;v*cos(psi2);v*sin(psi2)];
 x0f = [+3000; -8000;v*cos(psi5);v*sin(psi5)];
-a = linearizedPlane('1',x0a,psi1,v,Ng);
-b = linearizedPlane('2',x0b,-pi/4,v,Ng);
-c = linearizedPlane('3',x0c,psi2,v,Ng);
-d = linearizedPlane('4',x0d,psi2,v,Ng);
-e = linearizedPlane('5',x0e,psi2,v,Ng);
-f = linearizedPlane('6',x0f,psi5,v,Ng);
+a = linearizedPlane('1',x0a,psi1,v, xylim, Ng);
+b = linearizedPlane('2',x0b,-pi/4,v,xylim, Ng);
+c = linearizedPlane('3',x0c,psi2,v,xylim, Ng);
+d = linearizedPlane('4',x0d,psi2,v,xylim, Ng);
+e = linearizedPlane('5',x0e,psi2,v,xylim, Ng);
+f = linearizedPlane('6',x0f,psi5,v,xylim, Ng);
 
 % populates relevant fields of params
 params = addPlane(a,params, N);
 params = addPlane(b,params, N);
-% params = addPlane(c,params, N);
-% params = addPlane(e,params, N);
-% params = addPlane(f,params, N);
-% params = addPlane(d,params, N);
+params = addPlane(c,params, N);
+params = addPlane(e,params, N);
+params = addPlane(f,params, N);
+params = addPlane(d,params, N);
 
 % params.costs('4', '4') = d.constant_radius_cost(5000);
 
 order = {};
 % landing_id = '4';
-% order = { '3', '2', '1','5', '6'};%, '4'};
-order = {'1','2'};
+order = { '3', '2', '1','5', '6', '4'};
+% order = {'1','2','3'};
 % 
 landing_id = order{1}; % choose which plane we want to land
 order = order(2:end);
 savePlot = 1;
-dir = strcat(string(date)," ", string(hour(datetime)),".",string(minute(datetime)));
+dir1 = strcat(string(date)," ", string(hour(datetime)),".",string(minute(datetime)),"fig10");
+dir2 = strcat(string(date)," ", string(hour(datetime)),".",string(minute(datetime)),"fig1");
 if savePlot
-    mkdir(strcat('plots/',dir));
+    mkdir(strcat('plots/',dir1));
+    mkdir(strcat('plots/',dir2));
 end
 params.lzdia = 1000; %landing zone diameter
 for j = 1:Ng %global simulation loop
     fprintf("Global timestep: %d\n",j);
-    Ts = max(set_ts(params, N, landing_id), 0.5);
+    Ts = max(set_ts(params, N, landing_id), 0.8);
     atcMPC(params,Ts,N); %mpc controller call
     for plane = values(params.aircraft_list)
         plane{1}.recordAndAdvanceState(); %applying control input to each plane
     end
-    plotPos(params); %update on plot
+    plotPos2(params,j); %update on plot
     
     if (dist_center(params, landing_id) < params.lzdia)
         removePlane(params, landing_id)
@@ -85,7 +88,8 @@ for j = 1:Ng %global simulation loop
         end
     end
     if savePlot
-        saveas(figure(10), strcat('plots/',dir,'/',num2str(j), '.jpg'));
+        saveas(figure(10), strcat('plots/',dir1,'/',num2str(j), '.jpg'));
+        saveas(figure(1), strcat('plots/',dir2,'/',num2str(j), '.jpg'));
     end
 end
 

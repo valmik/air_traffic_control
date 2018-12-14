@@ -1,0 +1,9 @@
+function pic = spinPlanePic(theta)
+plane_pic = imread('plane.jpg'); %Import Plane Image
+plane_pic = padarray(plane_pic,[50 50],1000,'both');
+pic = imrotate(plane_pic, theta,'crop');
+border = 50;
+pic(1:border,:,:) = 1000;
+pic(:,end-border:end,:) = 1000;
+pic(:,1:border,:) = 1000;
+pic(end-border:end,:) = 1000;

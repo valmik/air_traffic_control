@@ -1,4 +1,4 @@
-function [] = plotPos2(params,i)
+function M = plotPos2(params,i)
 figure(1); clf
 plane_pic = imread('plane.jpg'); %Import Plane Image
 % plane_pic = plane_pic(:,:)
@@ -48,6 +48,7 @@ for key = keySet
     pic = image([pos(1,1)-pic_l pos(1,1)+pic_l], [pos(2,1)-pic_l pos(2,1)+pic_l],pic);  %Plot the plane at (xmin, xmax), (ymin, ymax)
     set(pic,'AlphaData', alpha)                 %Set up transparency
     viscircles([0 0],params.lzdia);
+    
 end
 limVal = 10E3;
 xlim(limVal*[-1 1]);
@@ -56,5 +57,5 @@ grid
 hold on
 hLegend = legend('-DynamicLegend');
 hLegend.String = unique(hLegend.String);
-
+M = getframe;
 pause(0.1)

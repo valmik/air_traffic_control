@@ -23,21 +23,38 @@ params.Ng = Ng;
 psi1 = 0; xy = [-1E3; 300]; v = 200;
 psi2 = 0;
 psi3 = pi/3;
-x0a = [-8000; 5000;v*cos(psi1);v*sin(psi1)];
-x0b = [-10000; -3000;v*cos(psi2);v*sin(psi2)];
+psi4 = pi/2;
+psi5 = -pi/2;
+x0a = [-8000; 0;v*cos(psi1);v*sin(psi1)];
+x0b = [-6000; -3000;v*cos(-pi/4);v*sin(-pi/4)];
 x0c = [-3000; -1000;v*cos(psi3);v*sin(psi3)];
 x0d = [2000; -3000;v*cos(psi2);v*sin(psi2)];
+x0e = [-3000; -8000;v*cos(psi2);v*sin(psi2)];
+x0f = [+3000; -8000;v*cos(psi5);v*sin(psi5)];
 a = linearizedPlane('1',x0a,psi1,v,Ng);
-b = linearizedPlane('2',x0b,psi2,v,Ng);
+b = linearizedPlane('2',x0b,-pi/4,v,Ng);
 c = linearizedPlane('3',x0c,psi2,v,Ng);
 d = linearizedPlane('4',x0d,psi2,v,Ng);
+e = linearizedPlane('5',x0e,psi2,v,Ng);
+f = linearizedPlane('6',x0f,psi5,v,Ng);
+
 % populates relevant fields of params
-% params = addPlane(a,params, N);
+params = addPlane(a,params, N);
 params = addPlane(b,params, N);
-% params = addPlane(c,params, N);
+params = addPlane(c,params, N);
+params = addPlane(e,params, N);
+params = addPlane(f,params, N);
 % params = addPlane(d,params, N);
 
-landing_id = '2'; % choose which plane we want to land
+% params.costs('4', '4') = d.constant_radius_cost(5000);
+
+order = {};
+% landing_id = '4';
+order = { '3', '2', '1','5', '6'};%, '4'};
+% 
+landing_id = order{1}; % choose which plane we want to land
+order = order(2:end);
+savePlot = 0;
 
 for j = 1:Ng %global simulation loop
     fprintf("Global timestep: %d\n",j);
@@ -54,8 +71,16 @@ for j = 1:Ng %global simulation loop
         if numel(keys) == 0
             break
         else
-            landing_id = keys{1};
+%             keys = keys(params.aircraft_list);
+%             landing_id = keys{1};
+            landing_id = order{1};
+            if numel(order) > 1
+                order = order(2:end);
+            end
         end
+    end
+    if savePlot
+        saveas(figure(1), strcat(num2str(j), '.jpg'));
     end
 end
 

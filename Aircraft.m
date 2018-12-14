@@ -142,6 +142,13 @@ classdef Aircraft < handle
                     obj.u_yalmip(:,k)'*obj.R*obj.u_yalmip(:,k);
             end
         end
+        
+        function cost = constant_radius_cost(obj, radius)
+            cost = 0;
+            for k = 1:obj.N+1;
+                cost = (obj.x_yalmip(1,k)^2 + obj.x_yalmip(2,k)^2 - radius^2)^2;
+            end
+        end
     end
     
 end

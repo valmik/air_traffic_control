@@ -6,7 +6,7 @@ options = sdpsettings('solver', 'IPOPT','verbose', false, 'showprogress', false,
             
 options.ipopt.mu_strategy      = 'adaptive';
 options.ipopt.max_iter         = 1e4;
-options.ipopt.tol              = 1e-3;
+options.ipopt.tol              = 1e0; % tolerance of 1m
 options.ipopt.linear_solver    = 'ma57';
 options.ipopt.ma57_automatic_scaling = 'yes';
 options.ipopt.linear_scaling_on_demand = 'yes';

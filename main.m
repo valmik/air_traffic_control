@@ -3,7 +3,7 @@ clear; clc
 % Add yalmip
 setup_paths
 
-Ts = .5; % Time step size (in seconds)
+Ts = .3; % Time step size (in seconds)
 N = 10; %MPC simulation horizon
 Ng = 1000;%global horizon
 
@@ -20,13 +20,13 @@ params.costs = MapNested();
 params.collision_constraints = MapNested;
 params.Ng = Ng; 
 
-psi1 = 0; xy = [-1E3; 300]; v = 200;
-psi2 = 0;
+psi1 = -pi/2; xy = [-1E3; 300]; v = 200;
+psi2 = pi/2;
 psi3 = pi/3;
 psi4 = pi/2;
 psi5 = -pi/2;
-x0a = [-8000; 0;v*cos(psi1);v*sin(psi1)];
-x0b = [-6000; -3000;v*cos(-pi/4);v*sin(-pi/4)];
+x0a = [-8000; 3000;v*cos(psi1);v*sin(psi1)];
+x0b = [-8000; -3000;v*cos(psi2);v*sin(psi2)];
 x0c = [-3000; -1000;v*cos(psi3);v*sin(psi3)];
 x0d = [2000; -3000;v*cos(psi2);v*sin(psi2)];
 x0e = [-3000; -8000;v*cos(psi2);v*sin(psi2)];
@@ -41,17 +41,17 @@ f = linearizedPlane('6',x0f,psi5,v,Ng);
 % populates relevant fields of params
 params = addPlane(a,params, N);
 params = addPlane(b,params, N);
-params = addPlane(c,params, N);
-params = addPlane(e,params, N);
-params = addPlane(f,params, N);
-params = addPlane(d,params, N);
+% params = addPlane(c,params, N);
+% params = addPlane(e,params, N);
+% params = addPlane(f,params, N);
+% params = addPlane(d,params, N);
 
 % params.costs('4', '4') = d.constant_radius_cost(5000);
 
 order = {};
 % landing_id = '4';
-order = { '3', '2', '1','5', '6'};%, '4'};
-% order = {'1','2'};
+% order = { '3', '2', '1','5', '6'};%, '4'};
+order = {'1','2'};
 % 
 landing_id = order{1}; % choose which plane we want to land
 order = order(2:end);
@@ -60,6 +60,7 @@ dir = strcat(string(date)," ", string(hour(datetime)),".",string(minute(datetime
 if savePlot
     mkdir(strcat('plots/',dir));
 end
+params.lzdia = 1000; %landing zone diameter
 for j = 1:Ng %global simulation loop
     fprintf("Global timestep: %d\n",j);
     Ts = max(set_ts(params, N, landing_id), 0.5);
@@ -69,7 +70,7 @@ for j = 1:Ng %global simulation loop
     end
     plotPos(params); %update on plot
     
-    if (dist_center(params, landing_id) < 1000)
+    if (dist_center(params, landing_id) < params.lzdia)
         removePlane(params, landing_id)
         keys = keys(params.aircraft_list);
         if numel(keys) == 0

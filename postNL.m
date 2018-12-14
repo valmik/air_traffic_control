@@ -37,7 +37,7 @@ postS = Polyhedron('V',nextVerts');
 postS = postS.minVRep(); %get rid of redundant vertices for #performance
 verts = postS.V;
 maxVals = max(verts(:,1:2),[],1);
-minVals = min(verts(:,1:2),[],1);
+minVals = min(verts(:,1:2),[],1); %this should just use the inequality rep and check if the inequalities are satisfied...depends on cost of generating ineq
 if all(maxVals > 0) && all(minVals < 0) %checking if limits of xy contain 0 aka is (0,0) in the set
     flag = 1;
 else

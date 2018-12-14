@@ -1,3 +1,5 @@
+%% test linearizedPlane
+
 %% testing postNL
 clear; clc
 Ts = .1; %timestep

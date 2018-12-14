@@ -31,7 +31,7 @@ classdef linearizedPlane < Aircraft
            distC = 50; %cost for dist from origin
            obj.Q = diag([distC,distC,0,0]); %stage
            obj.R = .2*eye(2); %input
-           obj.P = zeros(obj.nx); %final
+           obj.P = diag([5000,5000,0,0]); %final
            
            obj.setConstraints();
         end
@@ -43,19 +43,18 @@ classdef linearizedPlane < Aircraft
            obj.bankLim = pi/3;
            obj.thrustMax = 2*112.5E3; 
            obj.thrustMin = obj.thrustMax/200;
-           obj.linear_dynamics_a = [zeros(2) eye(2); 
-                                    zeros(2) zeros(2)];
-           obj.linear_dynamics_b = [zeros(2); 
-                                     eye(2)];
-           obj.nonlinear_constraints = @(x, u) [x(3).^2 + x(4).^2 - maxV.^2;
-                                                (obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V) - obj.thrustMax;
-                                                obj.thrustMin - (obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V)];
-           obj.state_constraints_a = [0 0 -cos(obj.psi) -sin(obj.psi); %check the rotation matrices here
-                                      1 0   0         0;
-                                      0 1   0         0];
-           obj.state_constraints_b = [-minV;
-                                       xylim;
-                                       xylim];
+           obj.linear_dynamics_a = [zeros(2) eye(2);       %checked
+                                    zeros(2) zeros(2)];    %checked
+           obj.linear_dynamics_b = [zeros(2); eye(2)];     %checked
+           obj.nonlinear_constraints = @(x, u) [(x(3).^2 + x(4).^2 - maxV.^2);
+               ((obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V) - obj.thrustMax);
+                                                (obj.thrustMin - (obj.m*(u(1)*cos(obj.psi)+u(2)*sin(obj.psi))+Kd*obj.V))];
+%                                   ; removed
+%                                                 nonlinear constraint
+           obj.state_constraints_a = [0  0 -cos(obj.psi) -sin(obj.psi); %checked
+                                      1  0   0         0;
+                                      0  1   0         0];
+           obj.state_constraints_b = [-minV; xylim; xylim];
            obj.input_constraints_a = [cos(obj.psi) sin(obj.psi);
                                       -cos(obj.psi) -sin(obj.psi);
                                       -sin(obj.psi)/g cos(obj.psi)/g;
@@ -66,6 +65,11 @@ classdef linearizedPlane < Aircraft
 %            obj.input_constraints_b = [aL; aL];
            %https://www.politesi.polimi.it/bitstream/10589/114191/1/Tesi.pdf%
 % pg 28ish
+        end
+        function [X,U] = constrPoly(obj)
+            X = Polyhedron('H',[obj.state_constraints_a obj.state_constraints_b]);
+            U = Polyhedron('H',[obj.input_constraints_a obj.input_constraints_b]);
+            fprintf("psi: %0.2f V: %0.2f\n",[obj.psi obj.V]);
         end
         function [state, input] = getState(obj,i)
            %convert from linearized states to physical states. see link at
@@ -87,8 +91,10 @@ classdef linearizedPlane < Aircraft
             obj.stateArr(:,obj.simCounter) = nextState; %this should be set to currstate + optimal input
             obj.state = nextState; %sets current state of plane to updated state
 %             obj.state = [nextState(1); nextState(2); 200; -100];
+            prevPsi = obj.psi;
             obj.psi = atan2(obj.state(4),obj.state(3)); %sets current heading angle
             obj.V = sqrt(obj.state(3).^2 + obj.state(4).^2);
+            
             obj.setConstraints(); %updates constraints based on new psi
         end
     end

@@ -16,6 +16,8 @@ limVal = 10E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
 grid
+hold on
+viscircles([0 0],params.lzdia,'Color','b');
 % legend(keySet)
 legend('-DynamicLegend')
 

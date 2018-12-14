@@ -32,12 +32,11 @@ end
 
 % Solve
 opts = setOptOptions();
-% toc
-% disp('start optimization');
-% tic
 fprintf('opt start\n');
+tic
 exitval_opt = optimize(constr, cost, opts);
-fprintf('opt end\n');
+elapsedtime = toc;
+fprintf('opt end: time: %0.2f\n',elapsedtime);
 % toc
 % value(params.obj)
 if exitval_opt.problem == 1

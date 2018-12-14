@@ -1,3 +1,20 @@
+%% test linearizedPlane
+clear
+v = 300; psi1 = 0; Ng = 100;
+x0a = [-8000; 0;v*cos(psi1);v*sin(psi1)];
+a = linearizedPlane('1',x0a,psi1,v,Ng);
+[X,U] = a.constrPoly();
+figure(1); clf
+subplot(2,1,1);
+xy = X.projection(1:2);
+xy.plot(); title('xy');
+subplot(2,1,2);
+Vxy = X.projection(3:4);
+Vxy.plot(); title('Vxy');
+figure(2); clf;
+U.plot(); title('input');
+
+
 %%
 params = struct();
 params.constr = [];

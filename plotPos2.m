@@ -1,4 +1,6 @@
 function M = plotPos2(params,i)
+get(0,'Factory'); % sets plot background to white
+set(0,'defaultfigurecolor',[1 1 1]);
 figure(1); clf
 plane_pic = imread('plane.jpg'); %Import Plane Image
 % plane_pic = plane_pic(:,:)
@@ -29,6 +31,11 @@ end
 limVal = 10E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
+set(gca, 'XTickLabel', get(gca, 'XTick'));
+set(gca, 'YTickLabel', get(gca, 'YTick'));
+xlabel('X-Position [meters]');
+ylabel('Y-Position [meters]');
+title('XY-Position of Multiple Aircraft');
 grid
 % legend(keySet)
 legend('-DynamicLegend')
@@ -53,6 +60,11 @@ end
 limVal = 10E3;
 xlim(limVal*[-1 1]);
 ylim(limVal*[-1 1]);
+set(gca, 'XTickLabel', get(gca, 'XTick'));
+set(gca, 'YTickLabel', get(gca, 'YTick'));
+xlabel('X-Position [meters]');
+ylabel('Y-Position [meters]');
+title('XY-Position of Multiple Aircraft');
 grid
 hold on
 hLegend = legend('-DynamicLegend');
